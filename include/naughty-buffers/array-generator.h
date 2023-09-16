@@ -1,0 +1,33 @@
+#ifndef NAUGHTY_BUFFERS_ARRAY_GENERATOR_H
+#define NAUGHTY_BUFFERS_ARRAY_GENERATOR_H
+
+#include "naughty-buffers/buffer.h"
+
+#define NAUGHTY_BUFFERS_ARRAY_DECLARATION(__NB_ARRAY_TYPE__, __NB_ARRAY_BLOCK_TYPE__)                                  \
+  struct __NB_ARRAY_TYPE__ {                                                                                           \
+    struct nb_buffer buffer;                                                                                           \
+  };                                                                                                                   \
+  void __NB_ARRAY_TYPE__##_init(struct __NB_ARRAY_TYPE__ * array);                                                     \
+  enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push(struct __NB_ARRAY_TYPE__ * array, const __NB_ARRAY_BLOCK_TYPE__ item);  \
+  enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push_ptr(struct __NB_ARRAY_TYPE__ * array,                                   \
+                                                   const __NB_ARRAY_BLOCK_TYPE__ * item);                              \
+  size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array);                                                  \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index);
+
+#define NAUGHTY_BUFFERS_ARRAY_DEFINITION(__NB_ARRAY_TYPE__, __NB_ARRAY_BLOCK_TYPE__)                                   \
+  void __NB_ARRAY_TYPE__##_init(struct __NB_ARRAY_TYPE__ * array) {                                                    \
+    nb_init(&array->buffer, sizeof(__NB_ARRAY_BLOCK_TYPE__));                                                          \
+  }                                                                                                                    \
+  enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push(struct __NB_ARRAY_TYPE__ * array, const __NB_ARRAY_BLOCK_TYPE__ item) { \
+    return nb_push(&array->buffer, (void *)&item);                                                                     \
+  }                                                                                                                    \
+  enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push_ptr(struct __NB_ARRAY_TYPE__ * array,                                   \
+                                                   const __NB_ARRAY_BLOCK_TYPE__ * item) {                             \
+    return nb_push(&array->buffer, (void *)item);                                                                      \
+  }                                                                                                                    \
+  size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array) { return nb_block_count(&array->buffer); }        \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * array, size_t index) {                   \
+    return nb_at(&array->buffer, index);                                                                               \
+  }
+
+#endif // NAUGHTY_BUFFERS_ARRAY_GENERATOR_H
