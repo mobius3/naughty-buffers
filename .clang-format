@@ -1,0 +1,6 @@
+IndentWidth: 2
+ColumnLimit: 120
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AlignEscapedNewlines: Right
+PointerAlignment: Middle
