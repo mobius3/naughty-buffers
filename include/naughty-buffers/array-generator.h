@@ -67,6 +67,6 @@
     return nb_at(&array->buffer, index);                                                                               \
   }                                                                                                                    \
                                                                                                                        \
-  void __NB_ARRAY_TYPE__##_release(struct __NB_ARRAY_TYPE__ * array) { return nb_release(&array->buffer); }
+  void __NB_ARRAY_TYPE__##_release(struct __NB_ARRAY_TYPE__ * array) { nb_release(&array->buffer); }
 
 #endif // NAUGHTY_BUFFERS_ARRAY_GENERATOR_H
