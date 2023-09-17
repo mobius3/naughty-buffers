@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include "naughty-buffers/buffer.h"
 #include "criterion/criterion.h"
+#include "naughty-buffers/buffer.h"
+#include <stdio.h>
 
 Test(insert, insert_increases_count_correctly) {
   struct nb_buffer buffer;
@@ -17,7 +17,6 @@ Test(insert, insert_increases_count_correctly) {
   cr_assert(buffer.block_count == 10);
   nb_release(&buffer);
 }
-
 
 Test(insert, insert_stores_the_right_values) {
   struct nb_buffer buffer;
@@ -84,8 +83,6 @@ Test(insert, insert_properly_stretches_the_buffer) {
   nb_release(&buffer);
 }
 
-
-
 Test(insert, insert_properly_keeps_other_values) {
   struct nb_buffer buffer;
   uint32_t value = 0;
@@ -109,8 +106,6 @@ Test(insert, insert_properly_keeps_other_values) {
   cr_assert(*read_value == 3);
   read_value = nb_at(&buffer, 2);
   cr_assert(*read_value == 0);
-
-
 
   value = 222;
   nb_insert(&buffer, 1, &value);

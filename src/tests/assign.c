@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include "naughty-buffers/buffer.h"
 #include "criterion/criterion.h"
+#include "naughty-buffers/buffer.h"
+#include <stdio.h>
 
 Test(assign, assign_increases_count_correctly) {
   struct nb_buffer buffer;
@@ -17,7 +17,6 @@ Test(assign, assign_increases_count_correctly) {
   cr_assert(buffer.block_count == 10);
   nb_release(&buffer);
 }
-
 
 Test(assign, assign_stores_the_right_values) {
   struct nb_buffer buffer;

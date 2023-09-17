@@ -1,5 +1,5 @@
-#include "naughty-buffers/buffer.h"
 #include "criterion/criterion.h"
+#include "naughty-buffers/buffer.h"
 
 Test(push, push_increases_count_correctly) {
   struct nb_buffer buffer;
@@ -14,7 +14,6 @@ Test(push, push_increases_count_correctly) {
   cr_assert(buffer.block_count == 3);
   nb_release(&buffer);
 }
-
 
 Test(push, push_stores_the_right_values) {
   struct nb_buffer buffer;
@@ -39,8 +38,6 @@ Test(push, push_stores_the_right_values) {
 
   nb_release(&buffer);
 }
-
-
 
 Test(push, push_store_values_not_addresses) {
   struct nb_buffer buffer;

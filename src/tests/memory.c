@@ -1,13 +1,12 @@
-#include <stdio.h>
-#include "naughty-buffers/buffer.h"
 #include "criterion/criterion.h"
-
+#include "naughty-buffers/buffer.h"
+#include <stdio.h>
 
 size_t alloc_call_count = 0;
 size_t alloc_call_size = 0;
 
 void * nb_test_alloc(size_t size, void * _) {
-  (void) _;
+  (void)_;
   alloc_call_count++;
   alloc_call_size = size;
   return malloc(size);
@@ -16,16 +15,15 @@ void * nb_test_alloc(size_t size, void * _) {
 size_t release_call_count = 0;
 
 void nb_test_release(void * ptr, void * _) {
-  (void) _;
+  (void)_;
   release_call_count++;
   free(ptr);
 }
 
-
 size_t realloc_call_count = 0;
 
 void * nb_test_realloc(void * ptr, size_t size, void * _) {
-  (void) _;
+  (void)_;
   realloc_call_count++;
   return realloc(ptr, size);
 }
@@ -34,7 +32,7 @@ size_t copy_call_count = 0;
 size_t copy_call_size = 0;
 
 void * nb_test_copy(void * destination, const void * source, size_t size, void * _) {
-  (void) _;
+  (void)_;
   copy_call_size = size;
   copy_call_count++;
   return memcpy(destination, source, size);
@@ -61,14 +59,7 @@ Test(memory, custom_memory_functions_and_context_are_initialized_properly) {
   reset();
   struct nb_buffer buffer;
   nb_init_advanced(
-      &buffer,
-      sizeof(uint32_t),
-      nb_test_alloc,
-      nb_test_realloc,
-      nb_test_release,
-      nb_test_copy,
-      nb_test_move,
-      &buffer
+      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
 
   cr_assert(buffer.alloc_fn == nb_test_alloc);
@@ -86,14 +77,7 @@ Test(memory, custom_memory_is_properly_called_with_push) {
   struct nb_buffer buffer;
   size_t value = 1;
   nb_init_advanced(
-      &buffer,
-      sizeof(uint32_t),
-      nb_test_alloc,
-      nb_test_realloc,
-      nb_test_release,
-      nb_test_copy,
-      nb_test_move,
-      &buffer
+      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
   cr_assert(alloc_call_count == 1);
   cr_assert(alloc_call_size == sizeof(uint32_t) * 2);
@@ -129,14 +113,7 @@ Test(memory, custom_memory_is_properly_called_with_assign) {
   struct nb_buffer buffer;
   size_t value = 1;
   nb_init_advanced(
-      &buffer,
-      sizeof(uint32_t),
-      nb_test_alloc,
-      nb_test_realloc,
-      nb_test_release,
-      nb_test_copy,
-      nb_test_move,
-      &buffer
+      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
 
   realloc_call_count = 0;
@@ -158,18 +135,10 @@ Test(memory, custom_memory_is_properly_called_with_assign) {
   cr_assert(release_call_count == 1);
 }
 
-
 Test(memory, custom_memory_is_properly_called_with_insert) {
   struct nb_buffer buffer;
   nb_init_advanced(
-      &buffer,
-      sizeof(uint32_t),
-      nb_test_alloc,
-      nb_test_realloc,
-      nb_test_release,
-      nb_test_copy,
-      nb_test_move,
-      &buffer
+      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
 
   size_t value = 1;
