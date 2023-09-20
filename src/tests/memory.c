@@ -165,3 +165,28 @@ Test(memory, custom_memory_is_properly_called_with_insert) {
   nb_release(&buffer);
   cr_assert(release_call_count == 1);
 }
+
+
+Test(memory, custom_memory_is_properly_called_with_remove) {
+  struct nb_buffer buffer;
+  nb_init_advanced(
+      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
+  );
+
+  size_t value = 1;
+  nb_push(&buffer, &value);
+  nb_push(&buffer, &value);
+  nb_push(&buffer, &value);
+
+  reset();
+
+  nb_remove_front(&buffer);
+  cr_assert(move_call_count == 1);
+
+  reset();
+
+  nb_remove_at(&buffer, 0);
+  cr_assert(move_call_count == 1);
+
+  nb_release(&buffer);
+}
