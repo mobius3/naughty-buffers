@@ -75,6 +75,14 @@ void * nb_at(struct nb_buffer * buffer, size_t index) {
   return block_address;
 }
 
+void * nb_front(struct nb_buffer * buffer) {
+  return nb_at(buffer, 0);
+}
+
+void * nb_back(struct nb_buffer * buffer) {
+  return nb_at(buffer, buffer->block_count -1);
+}
+
 void nb_release(struct nb_buffer * buffer) {
   buffer->free_fn(buffer->data, buffer->memory_context);
 
@@ -119,4 +127,28 @@ enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * 
   if (index >= buffer->block_count) buffer->block_count = index +1;
   else buffer->block_count += 1;
   return NB_INSERT_OK;
+}
+
+void nb_remove_front(struct nb_buffer * buffer) {
+  nb_remove_at(buffer, 0);
+}
+
+void nb_remove_back(struct nb_buffer * buffer) {
+  nb_remove_at(buffer, buffer->block_count -1);
+}
+
+void nb_remove_at(struct nb_buffer * buffer, size_t index) {
+  if (index >= buffer->block_count) return;
+  if (index == buffer->block_count -1) {
+    buffer->block_count--;
+    return;
+  }
+  uint8_t * buffer_data = buffer->data;
+  uint8_t * block_data = buffer_data + (index * buffer->block_size);
+  uint8_t * dest = block_data;
+  uint8_t * src = buffer_data + ((index + 1) * buffer->block_size);
+  size_t move_count = buffer->block_count - index - 1;
+  size_t move_size = move_count * buffer->block_size;
+  buffer->move_fn(dest, src, move_size, buffer->memory_context);
+  buffer->block_count--;
 }

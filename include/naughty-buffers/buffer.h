@@ -131,6 +131,25 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_at(struct nb_buffer * buffer, size_t index);
 
+
+/**
+ * @brief Returns a pointer to the first block or NULL if the buffer is empty
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @param index The index to read
+ * @return A pointer to the block data or NULL if the buffer is empty
+ * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ */
+NAUGHTY_BUFFERS_EXPORT void * nb_front(struct nb_buffer * buffer);
+
+/**
+ * @brief Returns a pointer to the last block or NULL if the buffer is empty
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @param index The index to read
+ * @return A pointer to the block data or NULL if the buffer is empty
+ * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ */
+NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
+
 /**
  * @brief Copies `data` to the block at index `index`.
  *
@@ -156,6 +175,32 @@ NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer
  * @return NB_INSERT_OK if assignment was successful or NB_INSERT_OUT_OF_MEMORY if out of memory
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * data);
+
+/**
+ * @brief Removes the block at index 0 from the array moving all other blocks to the beginning.
+ *
+ * @warning This function will invalidate all previously returned pointers with `nb_at`
+ * @param buffer A pointer to a ::nb_buffer struct
+ */
+NAUGHTY_BUFFERS_EXPORT void nb_remove_front(struct nb_buffer * buffer);
+
+
+/**
+ * @brief Removes the block at the last index from the array.
+ *
+ * @warning This function will invalidate pointers to the last block of the buffer previously returned by `nb_at`
+ * @param buffer A pointer to a ::nb_buffer struct
+ */
+NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
+
+
+/**
+ * @brief Removes the block at the specified index
+ *
+ * @warning This function will invalidate pointers previously returned by `nb_at` for blocks at the index and past it
+ * @param buffer A pointer to a ::nb_buffer struct
+ */
+NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index);
 
 /**
  * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an unitialized buffer.
