@@ -166,7 +166,6 @@ Test(memory, custom_memory_is_properly_called_with_insert) {
   cr_assert(release_call_count == 1);
 }
 
-
 Test(memory, custom_memory_is_properly_called_with_remove) {
   struct nb_buffer buffer;
   nb_init_advanced(

@@ -10,12 +10,12 @@
 extern "C" {
 #endif
 
-typedef void * (* nb_alloc_fn)(size_t size, void * context);
-typedef void * (* nb_realloc_fn)(void * ptr, size_t new_size, void * context);
-typedef void * (* nb_copy_fn)(void * destination, const void * source, size_t size, void * context);
-typedef void * (* nb_move_fn)(void * destination, const void * source, size_t size, void * context);
-typedef void (* nb_free_fn)(void * ptr, void * context);
-typedef int (* nb_compare_fn)(const void * ptr_a, const void * ptr_b);
+typedef void * (*nb_alloc_fn)(size_t size, void * context);
+typedef void * (*nb_realloc_fn)(void * ptr, size_t new_size, void * context);
+typedef void * (*nb_copy_fn)(void * destination, const void * source, size_t size, void * context);
+typedef void * (*nb_move_fn)(void * destination, const void * source, size_t size, void * context);
+typedef void (*nb_free_fn)(void * ptr, void * context);
+typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
 
 /**
  * @brief a structure holding the buffer data and metadata about the blocks.
@@ -29,43 +29,34 @@ typedef int (* nb_compare_fn)(const void * ptr_a, const void * ptr_b);
  * @sa nb_release
  */
 struct nb_buffer {
-    size_t block_size;
-    size_t block_count;
-    size_t block_capacity;
+  size_t block_size;
+  size_t block_count;
+  size_t block_capacity;
 
-    nb_alloc_fn alloc_fn;
-    nb_realloc_fn realloc_fn;
-    nb_free_fn free_fn;
-    nb_copy_fn copy_fn;
-    nb_move_fn move_fn;
-    void * memory_context;
+  nb_alloc_fn alloc_fn;
+  nb_realloc_fn realloc_fn;
+  nb_free_fn free_fn;
+  nb_copy_fn copy_fn;
+  nb_move_fn move_fn;
+  void * memory_context;
 
-    void * data;
+  void * data;
 };
 
 /**
  * @brief Result of calling ::nb_push
  */
-enum NB_PUSH_RESULT {
-    NB_PUSH_OUT_OF_MEMORY,
-    NB_PUSH_OK
-};
+enum NB_PUSH_RESULT { NB_PUSH_OUT_OF_MEMORY, NB_PUSH_OK };
 
 /**
  * @brief Result of calling ::nb_assign
  */
-enum NB_ASSIGN_RESULT {
-    NB_ASSIGN_OUT_OF_MEMORY,
-    NB_ASSIGN_OK
-};
+enum NB_ASSIGN_RESULT { NB_ASSIGN_OUT_OF_MEMORY, NB_ASSIGN_OK };
 
 /**
  * @brief Result of calling ::nb_insert
  */
-enum NB_INSERT_RESULT {
-    NB_INSERT_OUT_OF_MEMORY,
-    NB_INSERT_OK
-};
+enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
 
 /**
  * @brief Initializes a ::nb_buffer struct with default values and pointers.
@@ -90,9 +81,12 @@ NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size
  * @param block_size Size, in bytes, for each buffer block
  * @param alloc_fn A function to allocate a memory block. It needs to have the same semantics of `malloc`
  * @param realloc_fn A function to reallocate a memory block. It needs to have the same semantics of `realloc`
- * @param free_fn A function to release a memory block allocated by `alloc_fn` or `realloc_fn`. Needs to have the same semantics of `free`
- * @param copy_fn A function to copy non-overlapping data from a block to another. It needs to have the same semantics of `memcpy`
- * @param move_fn A function to copy possibly overlapping data from a block to another. It needs to have the same semantics of `memmove`
+ * @param free_fn A function to release a memory block allocated by `alloc_fn` or `realloc_fn`. Needs to have the same
+ * semantics of `free`
+ * @param copy_fn A function to copy non-overlapping data from a block to another. It needs to have the same semantics
+ * of `memcpy`
+ * @param move_fn A function to copy possibly overlapping data from a block to another. It needs to have the same
+ * semantics of `memmove`
  * @param memory_context A pointer to an optional context that will be passed to each memory function.
  */
 NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
@@ -112,7 +106,8 @@ NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
  * @param buffer A pointer to a ::nb_buffer struct
  * @param data The data to copy.
  * @return NB_PUSH_OK if successful, NB_PUSH_OUT_OF_MEMORY if no more memory could be allocated.
- * @warning Because the buffer when reallocated can change places, all previous pointers returned by ::nb_at may be invalid after calling this function.
+ * @warning Because the buffer when reallocated can change places, all previous pointers returned by ::nb_at may be
+ * invalid after calling this function.
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, void * data);
 
@@ -131,7 +126,6 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_at(struct nb_buffer * buffer, size_t index);
-
 
 /**
  * @brief Returns a pointer to the first block or NULL if the buffer is empty
@@ -185,7 +179,6 @@ NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_front(struct nb_buffer * buffer);
 
-
 /**
  * @brief Removes the block at the last index from the array.
  *
@@ -193,7 +186,6 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_front(struct nb_buffer * buffer);
  * @param buffer A pointer to a ::nb_buffer struct
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
-
 
 /**
  * @brief Removes the block at the specified index
@@ -206,7 +198,8 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index
 NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
 /**
- * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an unitialized buffer.
+ * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an
+ * unitialized buffer.
  *
  * You can reuse the same buffer after another call to ::nb_init or ::nb_init_advanced.
  * @param buffer A pointer to a ::nb_buffer struct
@@ -217,4 +210,4 @@ NAUGHTY_BUFFERS_EXPORT void nb_release(struct nb_buffer * buffer);
 };
 #endif
 
-#endif //NAUGHTY_BUFFERS_BUFFER_H
+#endif // NAUGHTY_BUFFERS_BUFFER_H

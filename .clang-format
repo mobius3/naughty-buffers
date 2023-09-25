@@ -4,6 +4,7 @@ AlignAfterOpenBracket: BlockIndent
 AlignArrayOfStructures: Left
 AlignEscapedNewlines: Right
 PointerAlignment: Middle
+SpaceAroundPointerQualifiers: Both
 AllowShortBlocksOnASingleLine: Always
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
