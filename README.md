@@ -30,8 +30,6 @@ int main(void) {
     nb_init(&buffer, sizeof(int));
     
     int value = 10;
-    int * read_value = NULL;
-    
     nb_push(&buffer, &value);
     printf("%d\n", read_int(&buffer, 0)); // prints 10
     
