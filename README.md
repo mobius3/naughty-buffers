@@ -1,8 +1,11 @@
 # Naughty Buffers 😈
 
-Naughty Buffers is a C99 library that provides generic, type-unsafe, _"stretchy buffer"_ that can hold any type of data internally and allows you to access them later. It automatically grows when assigning, pushing or inserting new data blocks.
+Naughty Buffers is a C99 library that provides generic, type-unsafe, _"stretchy buffer"_ that can hold any type of data
+internally and allows you to access them later. It automatically grows when assigning, pushing or inserting new data
+blocks.
 
-It also allows you to specify your own memory-management replacement functions for when you don't want to use standard ones (`malloc` and friends)
+It also allows you to specify your own memory-management replacement functions for when you don't want to use standard
+ones (`malloc` and friends)
 
 ## Features
 
@@ -81,12 +84,4 @@ int main(void) {
 }
 ```
 
-**Type-safe wrappers**
-
-```c
-// file: my-array.h
-struct complex_type {
-    int value1;
-    char value2;
-};
-```
+Check [the tests folder](/src/tests) and [the examples folder](/src/examples) for more complex examples
