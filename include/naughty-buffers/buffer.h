@@ -195,6 +195,13 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index);
 
+/**
+ * @brief Sorts the buffer using stdlib's qsort function
+ *
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @param compare_fn A comparison fuction returnin < 0 if the first element should come before the second, 0 if they're
+ * equal and > 0 if the first element should come after the second
+ */
 NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
 /**
