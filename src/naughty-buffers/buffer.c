@@ -60,7 +60,7 @@ enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, void * data) {
 
 size_t nb_block_count(struct nb_buffer * buffer) { return buffer->block_count; }
 
-void * nb_at(struct nb_buffer * buffer, size_t index) {
+void * nb_at(const struct nb_buffer * buffer, size_t index) {
   uint8_t * buffer_data = buffer->data;
   if (index >= buffer->block_count) return NULL;
   uint8_t * block_address = buffer_data + (buffer->block_size * index);
@@ -138,5 +138,5 @@ void nb_remove_at(struct nb_buffer * buffer, size_t index) {
 }
 
 void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn) {
-  qsort(buffer, buffer->block_count, buffer->block_size, compare_fn);
+  qsort(buffer->data, buffer->block_count, buffer->block_size, compare_fn);
 }

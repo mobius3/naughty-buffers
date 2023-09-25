@@ -125,7 +125,7 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  * @return A pointer to the block data or NULL if the index is out of bounds
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
  */
-NAUGHTY_BUFFERS_EXPORT void * nb_at(struct nb_buffer * buffer, size_t index);
+NAUGHTY_BUFFERS_EXPORT void * nb_at(const struct nb_buffer * buffer, size_t index);
 
 /**
  * @brief Returns a pointer to the first block or NULL if the buffer is empty
