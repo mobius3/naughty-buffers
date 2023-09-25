@@ -236,3 +236,79 @@ Test(array_generator, sort_sorts) {
 
   test_array_release(&test_array);
 }
+
+Test(array_generator, decreases_count_correctly) {
+  struct test_array test_array;
+  struct nb_test test = { .value = 0 };
+  test_array_init(&test_array);
+  cr_assert(test_array_count(&test_array) == 0);
+  test_array_push_ptr(&test_array, &test);
+  test_array_push_ptr(&test_array, &test);
+  test_array_push_ptr(&test_array, &test);
+  test_array_push_ptr(&test_array, &test);
+  test_array_push_ptr(&test_array, &test);
+  test_array_push_ptr(&test_array, &test);
+
+  test_array_remove_back(&test_array);
+  cr_assert(test_array_count(&test_array) == 5);
+
+  test_array_remove_front(&test_array);
+  cr_assert(test_array_count(&test_array) == 4);
+
+  test_array_remove_at(&test_array, 2);
+  cr_assert(test_array_count(&test_array) == 3);
+
+  test_array_release(&test_array);
+}
+
+Test(array_generator, keeps_values_and_ordering) {
+  struct test_array test_array;
+  struct nb_test test;
+
+  test_array_init(&test_array);
+
+  for (uint32_t i = 0; i < 10; i++) {
+    test.value = i;
+    test_array_push_ptr(&test_array, &test);
+  }
+
+  test_array_remove_front(&test_array);
+  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 4);
+  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 5);
+  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 6);
+  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 7);
+  cr_expect_eq(test_array_at_ptr(&test_array, 7)->value, 8);
+  cr_expect_eq(test_array_at_ptr(&test_array, 8)->value, 9);
+
+  test_array_remove_back(&test_array);
+  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 4);
+  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 5);
+  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 6);
+  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 7);
+  cr_expect_eq(test_array_at_ptr(&test_array, 7)->value, 8);
+
+  test_array_remove_at(&test_array, 3);
+  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 5);
+  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 6);
+  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 7);
+  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 8);
+
+  test_array_remove_at(&test_array, 4);
+  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 5);
+  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 7);
+  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 8);
+
+  test_array_release(&test_array);
+}
