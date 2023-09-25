@@ -237,7 +237,7 @@ Test(array_generator, sort_sorts) {
   test_array_release(&test_array);
 }
 
-Test(array_generator, decreases_count_correctly) {
+Test(array_generator, remove_decreases_count_correctly) {
   struct test_array test_array;
   struct nb_test test = { .value = 0 };
   test_array_init(&test_array);
@@ -261,7 +261,7 @@ Test(array_generator, decreases_count_correctly) {
   test_array_release(&test_array);
 }
 
-Test(array_generator, keeps_values_and_ordering) {
+Test(array_generator, remove_keeps_values_and_ordering) {
   struct test_array test_array;
   struct nb_test test;
 
