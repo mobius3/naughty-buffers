@@ -25,7 +25,8 @@
       struct __NB_ARRAY_TYPE__ * array, size_t index, const __NB_ARRAY_BLOCK_TYPE__ * item                             \
   );                                                                                                                   \
   size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array);                                                  \
-  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index);                   \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index);                     \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at_ptr(struct __NB_ARRAY_TYPE__ * buffer, size_t index);               \
   void __NB_ARRAY__TYPE__##_release(struct __NB_ARRAY_TYPE__ * array);
 
 #define NAUGHTY_BUFFERS_ARRAY_DEFINITION(__NB_ARRAY_TYPE__, __NB_ARRAY_BLOCK_TYPE__)                                   \
@@ -62,9 +63,18 @@
     return nb_insert(&array->buffer, index, (void *)item);                                                             \
   }                                                                                                                    \
                                                                                                                        \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_front_ptr(struct __NB_ARRAY_TYPE__ * array) {                          \
+    return __NB_ARRAY_TYPE__##_at_ptr(array, 0);                                                                       \
+  }                                                                                                                    \
+                                                                                                                       \
   size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array) { return nb_block_count(&array->buffer); }        \
-  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * array, size_t index) {                   \
-    return nb_at(&array->buffer, index);                                                                               \
+                                                                                                                       \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at_ptr(struct __NB_ARRAY_TYPE__ * array, size_t index) {               \
+    return (__NB_ARRAY_BLOCK_TYPE__ *)nb_at(&array->buffer, index);                                                    \
+  }                                                                                                                    \
+                                                                                                                       \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index) {                    \
+    return *__NB_ARRAY_TYPE__##_at_ptr(buffer, index);                                                                 \
   }                                                                                                                    \
                                                                                                                        \
   void __NB_ARRAY_TYPE__##_release(struct __NB_ARRAY_TYPE__ * array) { nb_release(&array->buffer); }
