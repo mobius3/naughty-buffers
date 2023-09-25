@@ -16,9 +16,51 @@ int nb_test_compare(const void * ptr_a, const void * ptr_b) {
 NAUGHTY_BUFFERS_ARRAY_DECLARATION(test_array, struct nb_test)
 NAUGHTY_BUFFERS_ARRAY_DEFINITION(test_array, struct nb_test)
 
+void * nb_test_alloc(size_t size, void * _) {
+  (void)_;
+  return malloc(size);
+}
+
+void nb_test_release(void * ptr, void * _) {
+  (void)_;
+  free(ptr);
+}
+
+void * nb_test_realloc(void * ptr, size_t size, void * _) {
+  (void)_;
+  return realloc(ptr, size);
+}
+
+void * nb_test_copy(void * destination, const void * source, size_t size, void * _) {
+  (void)_;
+  return memcpy(destination, source, size);
+}
+
+void * nb_test_move(void * destination, const void * source, size_t size, void * _) {
+  (void)_;
+  return memmove(destination, source, size);
+}
+
 Test(array_generator, init_works) {
   struct test_array test_array;
   test_array_init(&test_array);
+
+  cr_assert(test_array.buffer.block_size == sizeof(struct nb_test));
+
+  test_array_release(&test_array);
+}
+
+Test(array_generator, init_advanced_works) {
+  struct test_array test_array;
+  test_array_init_advanced(
+      &test_array, nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &test_array
+  );
+
+  cr_assert(test_array.buffer.alloc_fn == nb_test_alloc);
+  cr_assert(test_array.buffer.realloc_fn == nb_test_realloc);
+  cr_assert(test_array.buffer.free_fn == nb_test_release);
+  cr_assert(test_array.buffer.copy_fn == nb_test_copy);
+  cr_assert(test_array.buffer.memory_context == &test_array);
 
   cr_assert(test_array.buffer.block_size == sizeof(struct nb_test));
 
@@ -230,16 +272,14 @@ Test(array_generator, sort_sorts) {
 
   test_array_sort(&test_array, nb_test_compare);
 
-  for (int i = 0; i < test_array_count(&test_array); i++) {
-    cr_expect_eq(test_array_at_ptr(&test_array, i)->value, i);
-  }
+  for (int i = 0; i < test_array_count(&test_array); i++) { cr_expect_eq(test_array_at_ptr(&test_array, i)->value, i); }
 
   test_array_release(&test_array);
 }
 
 Test(array_generator, remove_decreases_count_correctly) {
   struct test_array test_array;
-  struct nb_test test = { .value = 0 };
+  struct nb_test test = {.value = 0};
   test_array_init(&test_array);
   cr_assert(test_array_count(&test_array) == 0);
   test_array_push_ptr(&test_array, &test);
