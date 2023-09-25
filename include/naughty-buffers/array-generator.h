@@ -27,6 +27,10 @@
   size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array);                                                  \
   __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index);                     \
   __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at_ptr(struct __NB_ARRAY_TYPE__ * buffer, size_t index);               \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_front_ptr(struct __NB_ARRAY_TYPE__ * buffer);                          \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_back_ptr(struct __NB_ARRAY_TYPE__ * buffer);                           \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_front(struct __NB_ARRAY_TYPE__ * buffer);                                \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_back(struct __NB_ARRAY_TYPE__ * buffer);                                 \
   void __NB_ARRAY__TYPE__##_release(struct __NB_ARRAY_TYPE__ * array);
 
 #define NAUGHTY_BUFFERS_ARRAY_DEFINITION(__NB_ARRAY_TYPE__, __NB_ARRAY_BLOCK_TYPE__)                                   \
@@ -64,7 +68,19 @@
   }                                                                                                                    \
                                                                                                                        \
   __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_front_ptr(struct __NB_ARRAY_TYPE__ * array) {                          \
-    return __NB_ARRAY_TYPE__##_at_ptr(array, 0);                                                                       \
+    return (__NB_ARRAY_BLOCK_TYPE__ *)nb_front(&array->buffer);                                                        \
+  }                                                                                                                    \
+                                                                                                                       \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_front(struct __NB_ARRAY_TYPE__ * array) {                                \
+    return *__NB_ARRAY_TYPE__##_front_ptr(array);                                                                      \
+  }                                                                                                                    \
+                                                                                                                       \
+  __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_back_ptr(struct __NB_ARRAY_TYPE__ * array) {                           \
+    return (__NB_ARRAY_BLOCK_TYPE__ *)nb_back(&array->buffer);                                                         \
+  }                                                                                                                    \
+                                                                                                                       \
+  __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_back(struct __NB_ARRAY_TYPE__ * array) {                                 \
+    return *__NB_ARRAY_TYPE__##_back_ptr(array);                                                                       \
   }                                                                                                                    \
                                                                                                                        \
   size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array) { return nb_block_count(&array->buffer); }        \
