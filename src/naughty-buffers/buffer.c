@@ -1,5 +1,6 @@
 #include "naughty-buffers/buffer.h"
 #include "memory.h"
+#include <stdlib.h>
 
 static size_t size_t_max(size_t a, size_t b) {
   if (a > b) return a;
@@ -151,4 +152,8 @@ void nb_remove_at(struct nb_buffer * buffer, size_t index) {
   size_t move_size = move_count * buffer->block_size;
   buffer->move_fn(dest, src, move_size, buffer->memory_context);
   buffer->block_count--;
+}
+
+void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn) {
+  qsort(buffer, buffer->block_count, buffer->block_size, compare_fn);
 }

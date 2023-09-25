@@ -15,6 +15,7 @@ typedef void * (* nb_realloc_fn)(void * ptr, size_t new_size, void * context);
 typedef void * (* nb_copy_fn)(void * destination, const void * source, size_t size, void * context);
 typedef void * (* nb_move_fn)(void * destination, const void * source, size_t size, void * context);
 typedef void (* nb_free_fn)(void * ptr, void * context);
+typedef int (* nb_compare_fn)(const void * ptr_a, const void * ptr_b);
 
 /**
  * @brief a structure holding the buffer data and metadata about the blocks.
@@ -201,6 +202,8 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
  * @param buffer A pointer to a ::nb_buffer struct
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index);
+
+NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
 /**
  * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an unitialized buffer.
