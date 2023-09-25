@@ -5,6 +5,14 @@ struct nb_test {
   long value;
 };
 
+int nb_test_compare(const void * ptr_a, const void * ptr_b) {
+  struct nb_test * test_a = (struct nb_test *)ptr_a;
+  struct nb_test * test_b = (struct nb_test *)ptr_b;
+  long a = test_a->value;
+  long b = test_b->value;
+  return (a < b ? -1 : (b < a ? 1 : 0));
+}
+
 NAUGHTY_BUFFERS_ARRAY_DECLARATION(test_array, struct nb_test)
 NAUGHTY_BUFFERS_ARRAY_DEFINITION(test_array, struct nb_test)
 
@@ -181,6 +189,50 @@ Test(array_generator, automatic_growth) {
 
   cr_assert(test_array_count(&test_array) == 6);
   cr_assert(test_array.buffer.block_capacity >= 6);
+
+  test_array_release(&test_array);
+}
+
+Test(array_generator, sort_sorts) {
+  struct test_array test_array;
+  struct nb_test test = {.value = 0};
+  test_array_init(&test_array);
+
+  test.value = 0;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 8;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 3;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 1;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 2;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 5;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 4;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 9;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 7;
+  test_array_push_ptr(&test_array, &test);
+
+  test.value = 6;
+  test_array_push_ptr(&test_array, &test);
+
+  test_array_sort(&test_array, nb_test_compare);
+
+  for (int i = 0; i < test_array_count(&test_array); i++) {
+    cr_expect_eq(test_array_at_ptr(&test_array, i)->value, i);
+  }
 
   test_array_release(&test_array);
 }
