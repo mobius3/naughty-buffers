@@ -20,23 +20,30 @@ It also allows you to specify your own memory-management replacement functions f
 #include "naughty-buffers/buffer.h"
 #include <stdio.h>
 
+int read_int(struct nb_buffer * buffer, size_t index) {
+  int * read_value = nb_at(&buffer, index);
+  return *read_value;
+}
+
 int main(void) {
     struct nb_buffer buffer;
     nb_init(&buffer, sizeof(int));
     
     int value = 10;
+    int * read_value = NULL;
+    
     nb_push(&buffer, &value);
-    printf("%d\n", *nb_at(&buffer, 0)); // prints 10
+    printf("%d\n", read_int(&buffer, 0)); // prints 10
     
     value = 30;
     nb_insert(&buffer, 0, &value);
-    printf("%d\n", *nb_at(&buffer, 0)); // prints 30
+    printf("%d\n", read_int(&buffer, 0)); // prints 30
     
     
     value = 50;
     nb_assign(&buffer, 1, &value);
-    printf("%d\n", *nb_at(&buffer, 1)); // prints 50
-    printf("%d\n", *nb_at(&buffer, 0)); // prints 30
+    printf("%d\n", read_int(&buffer, 1)); // prints 50
+    printf("%d\n", read_int(&buffer, 0)); // prints 30
     
     return 0;
 }
