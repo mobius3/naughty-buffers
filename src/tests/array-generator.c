@@ -24,14 +24,14 @@ Test(array_generator, push_adds_correct_values) {
   test_array_init(&test_array);
 
   test_array_push(&test_array, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
 
   test.value = 20;
   test_array_push(&test_array, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
-  read_test = test_array_at(&test_array, 1);
+  read_test = test_array_at_ptr(&test_array, 1);
   cr_assert(read_test->value == 20);
 
   cr_assert(test_array_count(&test_array) == 2);
@@ -46,13 +46,13 @@ Test(array_generator, push_ptr_adds_correct_values_not_pointers) {
   test_array_init(&test_array);
 
   test_array_push_ptr(&test_array, &test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
   cr_assert(read_test != &test);
 
   test.value = 20;
   test_array_push_ptr(&test_array, &test);
-  read_test = test_array_at(&test_array, 1);
+  read_test = test_array_at_ptr(&test_array, 1);
   cr_assert(read_test->value == 20);
   cr_assert(read_test != &test);
 
@@ -68,13 +68,13 @@ Test(array_generator, assign_ptr_adds_correct_values_not_pointers) {
   test_array_init(&test_array);
 
   test_array_assign_ptr(&test_array, 0, &test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
   cr_assert(read_test != &test);
 
   test.value = 20;
   test_array_assign_ptr(&test_array, 0, &test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 20);
   cr_assert(read_test != &test);
 
@@ -90,12 +90,12 @@ Test(array_generator, assign_adds_correct_values) {
   test_array_init(&test_array);
 
   test_array_assign(&test_array, 0, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
 
   test.value = 20;
   test_array_assign(&test_array, 0, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 20);
 
   cr_assert(test_array_count(&test_array) == 1);
@@ -110,13 +110,13 @@ Test(array_generator, insert_ptr_adds_correct_values_not_pointers) {
   test_array_init(&test_array);
 
   test_array_insert_ptr(&test_array, 0, &test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
   cr_assert(read_test != &test);
 
   test.value = 20;
   test_array_insert_ptr(&test_array, 0, &test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 20);
   cr_assert(read_test != &test);
 
@@ -132,12 +132,12 @@ Test(array_generator, insert_adds_correct_values) {
   test_array_init(&test_array);
 
   test_array_insert(&test_array, 0, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 10);
 
   test.value = 20;
   test_array_insert(&test_array, 0, test);
-  read_test = test_array_at(&test_array, 0);
+  read_test = test_array_at_ptr(&test_array, 0);
   cr_assert(read_test->value == 20);
 
   test_array_release(&test_array);
