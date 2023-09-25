@@ -8,9 +8,13 @@ It also allows you to specify your own memory-management replacement functions f
 
 - Buffer automatically grows to accommodate for data
 - Allows for custom memory functions set at runtime
+- Macros to generate type-safe* wrappers
 - No external dependencies
 - Clear, easy to use and fully documented API
-- Unit tests 😁
+- Unit tested 😁
+- _Valgrind_: All heap blocks were freed -- no leaks are possible
+
+Wrappers are not really type-safe at implementation level, but they allow you to use a type-safe API.
 
 ## Examples
 
@@ -75,4 +79,14 @@ int main(void) {
   
   return 0;
 }
+```
+
+**Type-safe wrappers**
+
+```c
+// file: my-array.h
+struct complex_type {
+    int value1;
+    char value2;
+};
 ```
