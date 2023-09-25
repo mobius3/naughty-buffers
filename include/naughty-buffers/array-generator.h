@@ -31,6 +31,10 @@
   __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_back_ptr(struct __NB_ARRAY_TYPE__ * buffer);                           \
   __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_front(struct __NB_ARRAY_TYPE__ * buffer);                                \
   __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_back(struct __NB_ARRAY_TYPE__ * buffer);                                 \
+  void __NB_ARRAY_TYPE__##_remove_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index);                                 \
+  void __NB_ARRAY_TYPE__##_remove_front(struct __NB_ARRAY_TYPE__ * buffer);                                            \
+  void __NB_ARRAY_TYPE__##_remove_back(struct __NB_ARRAY_TYPE__ * buffer);                                             \
+  void __NB_ARRAY_TYPE__##_sort(struct __NB_ARRAY_TYPE__ * buffer, nb_compare_fn compare_fn);                          \
   void __NB_ARRAY__TYPE__##_release(struct __NB_ARRAY_TYPE__ * array);
 
 #define NAUGHTY_BUFFERS_ARRAY_DEFINITION(__NB_ARRAY_TYPE__, __NB_ARRAY_BLOCK_TYPE__)                                   \
@@ -83,6 +87,14 @@
     return *__NB_ARRAY_TYPE__##_back_ptr(array);                                                                       \
   }                                                                                                                    \
                                                                                                                        \
+  void __NB_ARRAY_TYPE__##_remove_at(struct __NB_ARRAY_TYPE__ * array, size_t index) {                                 \
+    nb_remove_at(&array->buffer, index);                                                                               \
+  }                                                                                                                    \
+                                                                                                                       \
+  void __NB_ARRAY_TYPE__##_remove_back(struct __NB_ARRAY_TYPE__ * array) { nb_remove_back(&array->buffer); }           \
+                                                                                                                       \
+  void __NB_ARRAY_TYPE__##_remove_front(struct __NB_ARRAY_TYPE__ * array) { nb_remove_front(&array->buffer); }         \
+                                                                                                                       \
   size_t __NB_ARRAY_TYPE__##_count(struct __NB_ARRAY_TYPE__ * array) { return nb_block_count(&array->buffer); }        \
                                                                                                                        \
   __NB_ARRAY_BLOCK_TYPE__ * __NB_ARRAY_TYPE__##_at_ptr(struct __NB_ARRAY_TYPE__ * array, size_t index) {               \
@@ -91,6 +103,10 @@
                                                                                                                        \
   __NB_ARRAY_BLOCK_TYPE__ __NB_ARRAY_TYPE__##_at(struct __NB_ARRAY_TYPE__ * buffer, size_t index) {                    \
     return *__NB_ARRAY_TYPE__##_at_ptr(buffer, index);                                                                 \
+  }                                                                                                                    \
+                                                                                                                       \
+  void __NB_ARRAY_TYPE__##_sort(struct __NB_ARRAY_TYPE__ * array, nb_compare_fn compare_fn) {                          \
+    nb_sort(&array->buffer, compare_fn);                                                                               \
   }                                                                                                                    \
                                                                                                                        \
   void __NB_ARRAY_TYPE__##_release(struct __NB_ARRAY_TYPE__ * array) { nb_release(&array->buffer); }
