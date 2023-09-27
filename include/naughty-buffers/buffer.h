@@ -170,7 +170,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
  *   nb_init(&buffer, sizeof(int));
  *
  *   int value = 0;
- *   nb_push(&buffer, value);
+ *   nb_push(&buffer, &value);
  *   assert(nb_block_count(&buffer) == 1);
  *
  *   nb_release(&buffer);
@@ -208,7 +208,7 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  *
  *   int value = 10;
  *   int * read_value;
- *   nb_push(&buffer, value);
+ *   nb_push(&buffer, &value);
  *   read_value = (int*) nb_at(&buffer, 0);
  *   assert(*read_value = 10);
  *
@@ -264,7 +264,7 @@ NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
  *
  *   int value = 10;
  *   int * read_value;
- *   nb_assign(&buffer, 20, value);
+ *   nb_assign(&buffer, 20, &value);
  *   read_value = (int*) nb_at(&buffer, 20);
  *   assert(*read_value = 10);
  *
@@ -287,6 +287,26 @@ NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer
  * @param index The block index to assign the data to
  * @param data A pointer to the data to be copied in the buffer at the specified index.
  * @return NB_INSERT_OK if assignment was successful or NB_INSERT_OUT_OF_MEMORY if out of memory
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+ *  int main(void) {
+ *   struct nb_buffer buffer;
+ *   nb_init(&buffer, sizeof(int));
+ *
+ *   int value = 0;
+ *   nb_push(&buffer, &value);
+ *
+ *   value = 10;
+ *   nb_insert(&buffer, 0, &value);
+ *   assert(nb_block_count(&buffer) == 2);
+ *
+ *   nb_release(&buffer);
+ *
+ *   return 0;
+ *  }
+ * @endcode
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * data);
 
