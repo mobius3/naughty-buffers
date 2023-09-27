@@ -184,6 +184,7 @@ NAUGHTY_BUFFERS_EXPORT enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, vo
  * @brief Returns the block count of the buffer.
  * @param buffer A pointer to a ::nb_buffer struct
  * @return The block count of the buffer
+ * @ingroup buffer
  *
  * **Example**
  *
@@ -197,6 +198,25 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  * @param index The index to read
  * @return A pointer to the block data or NULL if the index is out of bounds
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+ * int main(void) {
+ *   struct nb_buffer buffer;
+ *   nb_init(&buffer, sizeof(int));
+ *
+ *   int value = 10;
+ *   int * read_value;
+ *   nb_push(&buffer, value);
+ *   read_value = (int*) nb_at(&buffer, 0);
+ *   assert(*read_value = 10);
+ *
+ *   nb_release(&buffer);
+ *
+ *   return 0;
+ *  }
+ * @endcode
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_at(const struct nb_buffer * buffer, size_t index);
 
