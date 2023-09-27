@@ -314,24 +314,59 @@ NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer
 /**
  * @brief Removes the block at index 0 from the array moving all other blocks to the beginning.
  *
+ * This is equivalent of calling ::nb_remove_at with index `nb_block_count(&buffer) -1`.
+ *
  * @warning This function will invalidate all previously returned pointers with `nb_at`
  * @param buffer A pointer to a ::nb_buffer struct
+ * @ingroup buffer
+ * @sa nb_remove_at
+ * @sa nb_remove_back
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_front(struct nb_buffer * buffer);
 
 /**
  * @brief Removes the block at the last index from the array.
  *
+ * This is equivalent of calling ::nb_remove_at with index `nb_block_count(&buffer) -1`.
+ *
  * @warning This function will invalidate pointers to the last block of the buffer previously returned by `nb_at`
  * @param buffer A pointer to a ::nb_buffer struct
+ * @ingroup buffer
+ * @sa nb_remove_at
+ * @sa nb_remove_front
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
 
 /**
  * @brief Removes the block at the specified index.
  *
- * @warning This function will invalidate pointers previously returned by `nb_at` for blocks at the index and past it
+ * @warning This function will invalidate pointers previously returned by ::nb_at for blocks at the index and past it
  * @param buffer A pointer to a ::nb_buffer struct
+ * @sa nb_remove_front
+ * @sa nb_remove_back
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 0;
+    nb_push(&buffer, &value);
+
+    value = 10;
+    nb_push(&buffer, &value);
+    assert(nb_block_count(&buffer) == 2);
+
+    nb_remove_at(&buffer, 0);
+    assert(nb_block_count(&buffer) == 1);
+
+    nb_release(&buffer);
+
+    return 0;
+  }
+ * @endcode
  */
 NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index);
 
