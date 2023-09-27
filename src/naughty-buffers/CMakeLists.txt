@@ -5,13 +5,11 @@ set(I ../../include)
 set(NAUGHTY_BUFFERS_PUBLIC_HEADERS
     ${I}/naughty-buffers/buffer.h
     ${I}/naughty-buffers/array-generator.h
-    ${I}/naughty-buffers/int-array.h
     ${CMAKE_CURRENT_BINARY_DIR}/naughty-buffers/naughty-buffers-export.h
 )
 
 add_library(naughty-buffers SHARED
     buffer.c
-    int-array.c
     memory.h
     memory.c
     ${NAUGHTY_BUFFERS_PUBLIC_HEADERS}
