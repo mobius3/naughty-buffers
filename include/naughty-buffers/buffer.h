@@ -115,29 +115,29 @@ NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size
  *
  * **Example**
  * @code
- * void * my_alloc(size_t memory_size, void * context);
- * void my_release(void * ptr, void * context);
- * void * my_realloc(void * ptr, size_t memory_size, void * context);
- * void * my_copy(void * destination, const void * source, size_t size, void * context);
- * void * my_move(void * destination, const void * source, size_t size, void * context);
- * void * memory_context;
- *
- * int main(void) {
- *   struct nb_buffer buffer;
- *   nb_init_advanced(
- *     &buffer,
- *     sizeof(int),
- *     my_alloc,
- *     my_realloc,
- *     my_release,
- *     my_copy,
- *     my_move,
- *     memory_contex
- *   );
- *   nb_release(&buffer);
- *
- *   return 0;
- *  }
+  void * my_alloc(size_t memory_size, void * context);
+  void my_release(void * ptr, void * context);
+  void * my_realloc(void * ptr, size_t memory_size, void * context);
+  void * my_copy(void * destination, const void * source, size_t size, void * context);
+  void * my_move(void * destination, const void * source, size_t size, void * context);
+  void * memory_context;
+
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init_advanced(
+      &buffer,
+      sizeof(int),
+      my_alloc,
+      my_realloc,
+      my_release,
+      my_copy,
+      my_move,
+      memory_contex
+    );
+
+    nb_release(&buffer);
+    return 0;
+  }
  *
  * @endcode
  *
@@ -165,15 +165,17 @@ NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
  *
  * **Example**
  * @code
- * int main(void) {
- *   struct nb_buffer buffer;
- *   nb_init(&buffer, sizeof(int));
- *
- *   int value = 0;
- *   nb_push(&buffer, &value);
- *   assert(nb_block_count(&buffer) == 1);
- *
- *   nb_release(&buffer);
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 0;
+    nb_push(&buffer, &value);
+    assert(nb_block_count(&buffer) == 1);
+
+    nb_release(&buffer);
+    return 0;
+  }
  * @endcode
  *
  * @ingroup buffer
@@ -202,20 +204,19 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
  *
  * **Example**
  * @code
- * int main(void) {
- *   struct nb_buffer buffer;
- *   nb_init(&buffer, sizeof(int));
- *
- *   int value = 10;
- *   int * read_value;
- *   nb_push(&buffer, &value);
- *   read_value = (int*) nb_at(&buffer, 0);
- *   assert(*read_value = 10);
- *
- *   nb_release(&buffer);
- *
- *   return 0;
- *  }
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 10;
+    int * read_value;
+    nb_push(&buffer, &value);
+    read_value = (int*) nb_at(&buffer, 0);
+    assert(*read_value = 10);
+
+    nb_release(&buffer);
+    return 0;
+  }
  * @endcode
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_at(const struct nb_buffer * buffer, size_t index);
@@ -258,20 +259,20 @@ NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
  *
  * **Example**
  * @code
- * int main(void) {
- *   struct nb_buffer buffer;
- *   nb_init(&buffer, sizeof(int));
- *
- *   int value = 10;
- *   int * read_value;
- *   nb_assign(&buffer, 20, &value);
- *   read_value = (int*) nb_at(&buffer, 20);
- *   assert(*read_value = 10);
- *
- *   nb_release(&buffer);
- *
- *   return 0;
- *  }
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 10;
+    int * read_value;
+    nb_assign(&buffer, 20, &value);
+    read_value = (int*) nb_at(&buffer, 20);
+    assert(*read_value = 10);
+
+    nb_release(&buffer);
+
+    return 0;
+  }
  *  @endcode
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer, size_t index, void * data);
@@ -291,21 +292,21 @@ NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer
  *
  * **Example**
  * @code
- *  int main(void) {
- *   struct nb_buffer buffer;
- *   nb_init(&buffer, sizeof(int));
- *
- *   int value = 0;
- *   nb_push(&buffer, &value);
- *
- *   value = 10;
- *   nb_insert(&buffer, 0, &value);
- *   assert(nb_block_count(&buffer) == 2);
- *
- *   nb_release(&buffer);
- *
- *   return 0;
- *  }
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 0;
+    nb_push(&buffer, &value);
+
+    value = 10;
+    nb_insert(&buffer, 0, &value);
+    assert(nb_block_count(&buffer) == 2);
+
+    nb_release(&buffer);
+
+    return 0;
+  }
  * @endcode
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * data);
