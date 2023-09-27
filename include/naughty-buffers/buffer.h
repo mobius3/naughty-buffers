@@ -159,9 +159,24 @@ NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
  *
  * @param buffer A pointer to a ::nb_buffer struct
  * @param data The data to copy.
- * @return NB_PUSH_OK if successful, NB_PUSH_OUT_OF_MEMORY if no more memory could be allocated.
+ * @return `NB_PUSH_OK` if successful, `NB_PUSH_OUT_OF_MEMORY` if no more memory could be allocated.
  * @warning Because the buffer when reallocated can change places, all previous pointers returned by ::nb_at may be
  * invalid after calling this function.
+ *
+ * **Example**
+ * @code
+ * int main(void) {
+ *   struct nb_buffer buffer;
+ *   nb_init(&buffer, sizeof(int));
+ *
+ *   int value = 0;
+ *   nb_push(&buffer, value);
+ *   assert(nb_buffer_block_count(&buffer) == 1);
+ *
+ *   nb_release(&buffer);
+ * @endcode
+ *
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, void * data);
 
@@ -169,6 +184,10 @@ NAUGHTY_BUFFERS_EXPORT enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, vo
  * @brief Returns the block count of the buffer.
  * @param buffer A pointer to a ::nb_buffer struct
  * @return The block count of the buffer
+ *
+ * **Example**
+ *
+ * See ::nb_push example
  */
 NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
 
