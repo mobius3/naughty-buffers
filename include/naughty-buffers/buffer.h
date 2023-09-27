@@ -132,7 +132,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size
       my_release,
       my_copy,
       my_move,
-      memory_contex
+      memory_context
     );
 
     nb_release(&buffer);
