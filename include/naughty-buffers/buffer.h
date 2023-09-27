@@ -171,7 +171,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
  *
  *   int value = 0;
  *   nb_push(&buffer, value);
- *   assert(nb_buffer_block_count(&buffer) == 1);
+ *   assert(nb_block_count(&buffer) == 1);
  *
  *   nb_release(&buffer);
  * @endcode
@@ -221,20 +221,26 @@ NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
 NAUGHTY_BUFFERS_EXPORT void * nb_at(const struct nb_buffer * buffer, size_t index);
 
 /**
- * @brief Returns a pointer to the first block or NULL if the buffer is empty
+ * @brief Returns a pointer to the first block or NULL if the buffer is empty.
+ * This is equivalent to calling ::nb_at with index 0
+ *
  * @param buffer A pointer to a ::nb_buffer struct
  * @param index The index to read
  * @return A pointer to the block data or NULL if the buffer is empty
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_front(struct nb_buffer * buffer);
 
 /**
  * @brief Returns a pointer to the last block or NULL if the buffer is empty
+ * This is equivalent to calling ::nb_at with index `nb_block_count(&buffer) -1`
+ *
  * @param buffer A pointer to a ::nb_buffer struct
  * @param index The index to read
  * @return A pointer to the block data or NULL if the buffer is empty
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
 
@@ -243,10 +249,30 @@ NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
  *
  * If `index` is larger than the buffer capacity the buffer data will be reallocated to accommodate the new data.
  * Uninitialized data will be present in the blocks preceding the new data if they were not present before.
+ *
  * @param buffer A pointer to a ::nb_buffer struct
  * @param index The block index to assign the data to
  * @param data A pointer to the data to be copied in the buffer at the specified index.
  * @return NB_ASSIGN_OK if assignment was successful or NB_ASSIGN_OUT_OF_MEMORY if out of memory
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+ * int main(void) {
+ *   struct nb_buffer buffer;
+ *   nb_init(&buffer, sizeof(int));
+ *
+ *   int value = 10;
+ *   int * read_value;
+ *   nb_assign(&buffer, 20, value);
+ *   read_value = (int*) nb_at(&buffer, 20);
+ *   assert(*read_value = 10);
+ *
+ *   nb_release(&buffer);
+ *
+ *   return 0;
+ *  }
+ *  @endcode
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer, size_t index, void * data);
 
@@ -281,7 +307,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_front(struct nb_buffer * buffer);
 NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
 
 /**
- * @brief Removes the block at the specified index
+ * @brief Removes the block at the specified index.
  *
  * @warning This function will invalidate pointers previously returned by `nb_at` for blocks at the index and past it
  * @param buffer A pointer to a ::nb_buffer struct
@@ -289,7 +315,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
 NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index);
 
 /**
- * @brief Sorts the buffer using stdlib's qsort function
+ * @brief Sorts the buffer using stdlib's qsort function.
  *
  * @param buffer A pointer to a ::nb_buffer struct
  * @param compare_fn A comparison fuction returnin < 0 if the first element should come before the second, 0 if they're
@@ -299,7 +325,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn com
 
 /**
  * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an
- * unitialized buffer.
+ * uninitialized buffer.
  *
  * You can reuse the same buffer after another call to ::nb_init or ::nb_init_advanced.
  * @param buffer A pointer to a ::nb_buffer struct
