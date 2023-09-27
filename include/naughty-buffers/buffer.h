@@ -1,6 +1,15 @@
 #ifndef NAUGHTY_BUFFERS_BUFFER_H
 #define NAUGHTY_BUFFERS_BUFFER_H
 
+/**
+ * @file buffer.h
+ * This file contains the structure nb_buffer which is the core of the naughty-buffers library.
+ *
+ * @defgroup buffer Buffer
+ * All the functions and types to manage a buffer are here. Buffers can automatically grow to handle pushes and
+ * insertions. They start with enough space for 2 blocks and grow by powers of 2 (4, 8, 16, 32, etc)
+ */
+
 #include "naughty-buffers/naughty-buffers-export.h"
 
 #include <stddef.h>
@@ -24,9 +33,10 @@ typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
  *
  * Initialize it by using ::nb_init or ::nb_init_advanced. Don't use before initialization.
  *
- * @sa nb_init
- * @sa nb_init_advanced
- * @sa nb_release
+ * @ingroup buffer
+ * @sa ::nb_init
+ * @sa ::nb_init_advanced
+ * @sa ::nb_release
  */
 struct nb_buffer {
   size_t block_size;
@@ -45,16 +55,19 @@ struct nb_buffer {
 
 /**
  * @brief Result of calling ::nb_push
+ * @ingroup buffer
  */
 enum NB_PUSH_RESULT { NB_PUSH_OUT_OF_MEMORY, NB_PUSH_OK };
 
 /**
  * @brief Result of calling ::nb_assign
+ * @ingroup buffer
  */
 enum NB_ASSIGN_RESULT { NB_ASSIGN_OUT_OF_MEMORY, NB_ASSIGN_OK };
 
 /**
  * @brief Result of calling ::nb_insert
+ * @ingroup buffer
  */
 enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
 
@@ -66,14 +79,25 @@ enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
  *
  * @param buffer A pointer to a ::nb_buffer struct to be initialized
  * @param block_size The size, in bytes, for each buffer block
+ *
+ * **Example**
+ * @code
+ * // initializes and releases a buffer to hold int-sized blocks
+ *
+ * void main() {
+ *   struct nb_buffer buffer;
+ *   nb_init(&buffer, sizeof(int));
+ *   nb_release(&buffer);
+ * }
+ * @endcode
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size);
 
 /**
  * @brief Initializes a ::nb_buffer struct with custom memory functions and context.
  *
- * You need to provide all
- * custom memory functions and optionally a memory context.
+ * You need to provide all custom memory functions and optionally a memory context.
  *
  * It will allocate enough memory to contain two blocks with `alloc_fn`
  *
@@ -88,6 +112,36 @@ NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size
  * @param move_fn A function to copy possibly overlapping data from a block to another. It needs to have the same
  * semantics of `memmove`
  * @param memory_context A pointer to an optional context that will be passed to each memory function.
+ *
+ * **Example**
+ * @code
+ * void * my_alloc(size_t memory_size, void * context);
+ * void my_release(void * ptr, void * context);
+ * void * my_realloc(void * ptr, size_t memory_size, void * context);
+ * void * my_copy(void * destination, const void * source, size_t size, void * context);
+ * void * my_move(void * destination, const void * source, size_t size, void * context);
+ * void * memory_context;
+ *
+ * int main(void) {
+ *   struct nb_buffer buffer;
+ *   nb_init_advanced(
+ *     &buffer,
+ *     sizeof(int),
+ *     my_alloc,
+ *     my_realloc,
+ *     my_release,
+ *     my_copy,
+ *     my_move,
+ *     memory_contex
+ *   );
+ *   nb_release(&buffer);
+ *
+ *   return 0;
+ *  }
+ *
+ * @endcode
+ *
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
     struct nb_buffer * buffer,
