@@ -10,6 +10,21 @@
  * insertions. They start with enough space for 2 blocks and grow by powers of 2 (4, 8, 16, 32, etc)
  */
 
+/**
+ * @mainpage Welcome!
+ *
+ * Naughty Buffers is a C99 library that provides generic, type-unsafe, _"stretchy buffer"_ that can hold any type of
+data
+ * internally and allows you to access them later. It automatically grows when assigning, pushing or inserting new data
+ * blocks.
+ *
+ * It also allows you to specify your own memory-management replacement functions for when you don't want to use standard
+ * ones (`malloc` and friends)
+ *
+ * @subsection references Starting points
+ * The <a href="group__buffer.html">Buffer</a> section is the API reference for the buffer management types and functions.
+ */
+
 #include "naughty-buffers/naughty-buffers-export.h"
 
 #include <stddef.h>
@@ -55,8 +70,8 @@ typedef void * (*nb_move_fn)(void * destination, const void * source, size_t siz
 typedef void (*nb_free_fn)(void * ptr, void * context);
 
 /**
- * @brief Type of a function that can compare two blocks, returning `< 0` if `*ptr_a < *ptr_b`, `0` if `*ptr_a == *ptr_b`
- * or `> 0` if `*ptr_a > *ptr_b`.
+ * @brief Type of a function that can compare two blocks, returning `< 0` if `*ptr_a < *ptr_b`, `0` if `*ptr_a ==
+ * *ptr_b` or `> 0` if `*ptr_a > *ptr_b`.
  * @ingroup buffer
  */
 typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
