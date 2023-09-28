@@ -19,11 +19,46 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Type of a function able to allocate a block of memory that will be called when the buffer gets initialized. It
+ * should function as `malloc`.
+ * @ingroup buffer
+ */
 typedef void * (*nb_alloc_fn)(size_t size, void * context);
+
+/**
+ * @brief Type of a function able to realloc a memory block, to be called when a buffer needs to enlarge its internal
+ * memory it will call this function. It should function as `realloc`.
+ * @ingroup buffer
+ */
 typedef void * (*nb_realloc_fn)(void * ptr, size_t new_size, void * context);
+
+/**
+ * @brief Type of a function able to copy a chunk of memory from source to destination, to be called when inserting,
+ * assigning or pushing data. It will never be called with overlapping memory. It should function as `memcpy`.
+ * @ingroup buffer
+ */
 typedef void * (*nb_copy_fn)(void * destination, const void * source, size_t size, void * context);
+
+/**
+ * @brief Type of a function able to move a chunk of memory from source to destination, to be called when inserting or
+ * removing data from the buffer. It needs to handle overlapping memory and should function like `memmove`.
+ * @ingroup buffer
+ */
 typedef void * (*nb_move_fn)(void * destination, const void * source, size_t size, void * context);
+
+/**
+ * @brief Type of a function able to release memory pointed by `ptr`, to be called when the buffer gets released. It
+ * should function like `free`.
+ * @ingroup buffer
+ */
 typedef void (*nb_free_fn)(void * ptr, void * context);
+
+/**
+ * @brief Type of a function that can compare two blocks, returning `< 0` if `*ptr_a < *ptr_b`, `0` if `*ptr_a == *ptr_b`
+ * or `> 0` if `*ptr_a > *ptr_b`.
+ * @ingroup buffer
+ */
 typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
 
 /**
@@ -376,6 +411,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index
  * @param buffer A pointer to a ::nb_buffer struct
  * @param compare_fn A comparison fuction returnin < 0 if the first element should come before the second, 0 if they're
  * equal and > 0 if the first element should come after the second
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
@@ -385,6 +421,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn com
  *
  * You can reuse the same buffer after another call to ::nb_init or ::nb_init_advanced.
  * @param buffer A pointer to a ::nb_buffer struct
+ * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_release(struct nb_buffer * buffer);
 
