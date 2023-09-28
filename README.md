@@ -85,3 +85,67 @@ int main(void) {
 ```
 
 Check [the tests folder](/src/tests) and [the examples folder](/src/examples) for more complex examples
+
+## Integrating with your code
+
+### Using pre-built releases
+
+Download a pre-built release package suitable for your platform and
+uncompress it somewhere you'll remember later (usually where you put
+other development libraries). Let's assume you uncompressed naughty-buffers to
+`/home/me/libs/naughty-buffers`.
+
+**Using CMake**: If you're using CMake, specify the variable
+`CMAKE_PREFIX_PATH` to point to it before running CMake in your project:
+
+```shell script
+cmake -DCMAKE_PREFIX_PATH=/home/me/libs
+```
+
+Then you can use `find_package(naughty-buffers)` and
+`target_link_libraries(<your-executable> PUBLIC naughty-buffers)` to link
+`<your-executable>` against naughty-buffers.
+
+**Not using CMake**: Assuming you uncompressed naughty-buffers to the same path as
+above, you should configure your build system to look for include files
+inside `/home/me/libs/naughty-buffers/include` and to look for shared objects to
+link against inside `/home/me/libs/naughty-buffers/lib`. In case of Windows, you
+should also point your linker to `naughty-buffers/bin` as well.
+
+### Using a source release and CMake
+
+Uncompress naughty-buffers in a folder inside your project (e.g,
+`your-project/third-party/naughty-buffers`) and then use
+`add_subdirectory(third-party/naughty-buffers EXCLUDE_FROM_ALL)` to add the
+library target. Then you can use `find_package(naughty-buffers)` and
+`target_link_libraries(<your-executable> PUBLIC naughty-buffers)` to link
+`<your-executable>` against naughty-buffers.
+
+Compiling the `.c` files directly in your project is not recommended nor
+supported.
+
+## Compile from source
+
+You'll need CMake installed and in your path and also capable of finding
+you compiler and linker. Then, after checking out this repository:
+
+```shell script
+mkdir build/
+cd build/
+cmake ..
+cmake --build .
+```
+
+## Examples
+
+Examples for C and C++ are in the [src/examples](src/examples) folder. To build them, when running cmake as in [Compile from source](#compile-from-source), add the following variable:
+
+```shell script
+cmake .. -DBUILD_EXAMPLES=1
+```
+
+You will need SDL2 available and CMake needs to be able to find it.
+
+## Documentation
+
+See [here](https://mobius3.github.io/naughty-buffers)

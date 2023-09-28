@@ -1,0 +1,4 @@
+/**
+ @example typesafe-wrapper.c An example on how to use the array generator macro to generate a type-safe API
+*/
+

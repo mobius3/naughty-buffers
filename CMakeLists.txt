@@ -12,5 +12,9 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 add_subdirectory(src)
 
+if (BUILD_DOCUMENTATION)
+  add_subdirectory(doc)
+endif()
+
 include(cmake/setup-exports.cmake)
 include(cmake/naughty-buffers-cpack.cmake)

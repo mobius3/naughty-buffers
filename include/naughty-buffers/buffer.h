@@ -18,11 +18,15 @@ data
  * internally and allows you to access them later. It automatically grows when assigning, pushing or inserting new data
  * blocks.
  *
- * It also allows you to specify your own memory-management replacement functions for when you don't want to use standard
+ * It also allows you to specify your own memory-management replacement functions for when you don't want to use
+standard
  * ones (`malloc` and friends)
  *
  * @subsection references Starting points
- * The <a href="group__buffer.html">Buffer</a> section is the API reference for the buffer management types and functions.
+ * The <a href="group__buffer.html">Buffer</a> section is the API reference for the buffer management types and
+functions.
+ * The <a href="group__array-generator.html">Array Generator</a> section is the API reference for the type-safe wrapper
+generator macros.
  */
 
 #include "naughty-buffers/naughty-buffers-export.h"
