@@ -62,3 +62,11 @@ void push_store_values_not_addresses() {
 
   nb_release(&buffer);
 }
+
+int main(void) {
+  push_increases_count_correctly();
+  push_stores_the_right_values();
+  push_store_values_not_addresses();
+
+  return 0;
+}
