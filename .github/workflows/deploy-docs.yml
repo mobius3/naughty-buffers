@@ -28,7 +28,7 @@ jobs:
           -S ${{ github.workspace }}
 
       - name: Configure doxygen
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target doc
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target doc
 
       - name: Build doxygen
         uses: mattnotmitt/doxygen-action@v1.9.5
