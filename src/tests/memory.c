@@ -1,6 +1,7 @@
-#include "criterion/criterion.h"
 #include "naughty-buffers/buffer.h"
-#include <stdio.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 size_t alloc_call_count = 0;
 size_t alloc_call_size = 0;
@@ -55,23 +56,23 @@ void reset() {
   move_call_count = 0;
 }
 
-Test(memory, custom_memory_functions_and_context_are_initialized_properly) {
+void memory_custom_memory_functions_and_context_are_initialized_properly() {
   reset();
   struct nb_buffer buffer;
   nb_init_advanced(
       &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
 
-  cr_assert(buffer.alloc_fn == nb_test_alloc);
-  cr_assert(buffer.realloc_fn == nb_test_realloc);
-  cr_assert(buffer.free_fn == nb_test_release);
-  cr_assert(buffer.copy_fn == nb_test_copy);
-  cr_assert(buffer.memory_context == &buffer);
+  assert(buffer.alloc_fn == nb_test_alloc);
+  assert(buffer.realloc_fn == nb_test_realloc);
+  assert(buffer.free_fn == nb_test_release);
+  assert(buffer.copy_fn == nb_test_copy);
+  assert(buffer.memory_context == &buffer);
 
   nb_release(&buffer);
 }
 
-Test(memory, custom_memory_is_properly_called_with_push) {
+void memory_custom_memory_is_properly_called_with_push() {
   reset();
 
   struct nb_buffer buffer;
@@ -79,35 +80,35 @@ Test(memory, custom_memory_is_properly_called_with_push) {
   nb_init_advanced(
       &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
   );
-  cr_assert(alloc_call_count == 1);
-  cr_assert(alloc_call_size == sizeof(uint32_t) * 2);
+  assert(alloc_call_count == 1);
+  assert(alloc_call_size == sizeof(uint32_t) * 2);
 
   realloc_call_count = 0;
   copy_call_count = 0;
   copy_call_size = 0;
 
   nb_push(&buffer, &value);
-  cr_assert(copy_call_count == 1);
-  cr_assert(copy_call_size == 4);
+  assert(copy_call_count == 1);
+  assert(copy_call_size == 4);
 
   nb_push(&buffer, &value);
-  cr_assert(copy_call_count == 2);
-  cr_assert(copy_call_size == 4);
+  assert(copy_call_count == 2);
+  assert(copy_call_size == 4);
   nb_push(&buffer, &value);
-  cr_assert(copy_call_count == 3);
-  cr_assert(copy_call_size == 4);
+  assert(copy_call_count == 3);
+  assert(copy_call_size == 4);
   nb_push(&buffer, &value);
-  cr_assert(copy_call_count == 4);
-  cr_assert(copy_call_size == 4);
+  assert(copy_call_count == 4);
+  assert(copy_call_size == 4);
 
-  cr_assert(realloc_call_count == 1);
+  assert(realloc_call_count == 1);
 
   release_call_count = 0;
   nb_release(&buffer);
-  cr_assert(release_call_count == 1);
+  assert(release_call_count == 1);
 }
 
-Test(memory, custom_memory_is_properly_called_with_assign) {
+void memory_custom_memory_is_properly_called_with_assign() {
   reset();
 
   struct nb_buffer buffer;
@@ -121,21 +122,21 @@ Test(memory, custom_memory_is_properly_called_with_assign) {
   copy_call_size = 0;
 
   nb_assign(&buffer, 5, &value);
-  cr_assert(copy_call_count == 1);
-  cr_assert(copy_call_size == 4);
-  cr_assert(realloc_call_count == 1);
+  assert(copy_call_count == 1);
+  assert(copy_call_size == 4);
+  assert(realloc_call_count == 1);
 
   nb_assign(&buffer, 9, &value);
-  cr_assert(copy_call_count == 2);
-  cr_assert(copy_call_size == 4);
-  cr_assert(realloc_call_count == 2);
+  assert(copy_call_count == 2);
+  assert(copy_call_size == 4);
+  assert(realloc_call_count == 2);
 
   release_call_count = 0;
   nb_release(&buffer);
-  cr_assert(release_call_count == 1);
+  assert(release_call_count == 1);
 }
 
-Test(memory, custom_memory_is_properly_called_with_insert) {
+void memory_custom_memory_is_properly_called_with_insert() {
   struct nb_buffer buffer;
   nb_init_advanced(
       &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
@@ -151,22 +152,22 @@ Test(memory, custom_memory_is_properly_called_with_insert) {
 
   value = 0;
   nb_insert(&buffer, 0, &value);
-  cr_assert(copy_call_count == 1);
-  cr_assert(realloc_call_count == 1);
-  cr_assert(move_call_count == 1);
+  assert(copy_call_count == 1);
+  assert(realloc_call_count == 1);
+  assert(move_call_count == 1);
 
   value = 0;
   nb_insert(&buffer, 8, &value);
-  cr_assert(copy_call_count == 2);
-  cr_assert(realloc_call_count == 2);
-  cr_assert(move_call_count == 1);
+  assert(copy_call_count == 2);
+  assert(realloc_call_count == 2);
+  assert(move_call_count == 1);
 
   release_call_count = 0;
   nb_release(&buffer);
-  cr_assert(release_call_count == 1);
+  assert(release_call_count == 1);
 }
 
-Test(memory, custom_memory_is_properly_called_with_remove) {
+void memory_custom_memory_is_properly_called_with_remove() {
   struct nb_buffer buffer;
   nb_init_advanced(
       &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
@@ -180,12 +181,22 @@ Test(memory, custom_memory_is_properly_called_with_remove) {
   reset();
 
   nb_remove_front(&buffer);
-  cr_assert(move_call_count == 1);
+  assert(move_call_count == 1);
 
   reset();
 
   nb_remove_at(&buffer, 0);
-  cr_assert(move_call_count == 1);
+  assert(move_call_count == 1);
 
   nb_release(&buffer);
+}
+
+int main(void) {
+  memory_custom_memory_functions_and_context_are_initialized_properly();
+  memory_custom_memory_is_properly_called_with_push();
+  memory_custom_memory_is_properly_called_with_assign();
+  memory_custom_memory_is_properly_called_with_insert();
+  memory_custom_memory_is_properly_called_with_remove();
+
+  return 0;
 }
