@@ -1,5 +1,5 @@
 #include "naughty-buffers/array-generator.h"
-#include "criterion/criterion.h"
+#include <assert.h>
 
 struct nb_test {
   long value;
@@ -15,6 +15,8 @@ int nb_test_compare(const void * ptr_a, const void * ptr_b) {
 
 NAUGHTY_BUFFERS_ARRAY_DECLARATION(test_array, struct nb_test)
 NAUGHTY_BUFFERS_ARRAY_DEFINITION(test_array, struct nb_test)
+
+#define assert_eq(a, b) assert((a) == (b))
 
 void * nb_test_alloc(size_t size, void * _) {
   (void)_;
@@ -41,33 +43,33 @@ void * nb_test_move(void * destination, const void * source, size_t size, void *
   return memmove(destination, source, size);
 }
 
-Test(array_generator, init_works) {
+void array_generator_init_works() {
   struct test_array test_array;
   test_array_init(&test_array);
 
-  cr_assert(test_array.buffer.block_size == sizeof(struct nb_test));
+  assert(test_array.buffer.block_size == sizeof(struct nb_test));
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, init_advanced_works) {
+void array_generator_init_advanced_works() {
   struct test_array test_array;
   test_array_init_advanced(
       &test_array, nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &test_array
   );
 
-  cr_assert(test_array.buffer.alloc_fn == nb_test_alloc);
-  cr_assert(test_array.buffer.realloc_fn == nb_test_realloc);
-  cr_assert(test_array.buffer.free_fn == nb_test_release);
-  cr_assert(test_array.buffer.copy_fn == nb_test_copy);
-  cr_assert(test_array.buffer.memory_context == &test_array);
+  assert(test_array.buffer.alloc_fn == nb_test_alloc);
+  assert(test_array.buffer.realloc_fn == nb_test_realloc);
+  assert(test_array.buffer.free_fn == nb_test_release);
+  assert(test_array.buffer.copy_fn == nb_test_copy);
+  assert(test_array.buffer.memory_context == &test_array);
 
-  cr_assert(test_array.buffer.block_size == sizeof(struct nb_test));
+  assert(test_array.buffer.block_size == sizeof(struct nb_test));
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, push_adds_correct_values) {
+void array_generator_push_adds_correct_values() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -75,21 +77,21 @@ Test(array_generator, push_adds_correct_values) {
 
   test_array_push(&test_array, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
+  assert(read_test->value == 10);
 
   test.value = 20;
   test_array_push(&test_array, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
+  assert(read_test->value == 10);
   read_test = test_array_at_ptr(&test_array, 1);
-  cr_assert(read_test->value == 20);
+  assert(read_test->value == 20);
 
-  cr_assert(test_array_count(&test_array) == 2);
+  assert(test_array_count(&test_array) == 2);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, push_ptr_adds_correct_values_not_pointers) {
+void array_generator_push_ptr_adds_correct_values_not_pointers() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -97,21 +99,21 @@ Test(array_generator, push_ptr_adds_correct_values_not_pointers) {
 
   test_array_push_ptr(&test_array, &test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 10);
+  assert(read_test != &test);
 
   test.value = 20;
   test_array_push_ptr(&test_array, &test);
   read_test = test_array_at_ptr(&test_array, 1);
-  cr_assert(read_test->value == 20);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 20);
+  assert(read_test != &test);
 
-  cr_assert(test_array_count(&test_array) == 2);
+  assert(test_array_count(&test_array) == 2);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, assign_ptr_adds_correct_values_not_pointers) {
+void array_generator_assign_ptr_adds_correct_values_not_pointers() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -119,21 +121,21 @@ Test(array_generator, assign_ptr_adds_correct_values_not_pointers) {
 
   test_array_assign_ptr(&test_array, 0, &test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 10);
+  assert(read_test != &test);
 
   test.value = 20;
   test_array_assign_ptr(&test_array, 0, &test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 20);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 20);
+  assert(read_test != &test);
 
-  cr_assert(test_array_count(&test_array) == 1);
+  assert(test_array_count(&test_array) == 1);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, assign_adds_correct_values) {
+void array_generator_assign_adds_correct_values() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -141,19 +143,19 @@ Test(array_generator, assign_adds_correct_values) {
 
   test_array_assign(&test_array, 0, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
+  assert(read_test->value == 10);
 
   test.value = 20;
   test_array_assign(&test_array, 0, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 20);
+  assert(read_test->value == 20);
 
-  cr_assert(test_array_count(&test_array) == 1);
+  assert(test_array_count(&test_array) == 1);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, insert_ptr_adds_correct_values_not_pointers) {
+void array_generator_insert_ptr_adds_correct_values_not_pointers() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -161,21 +163,21 @@ Test(array_generator, insert_ptr_adds_correct_values_not_pointers) {
 
   test_array_insert_ptr(&test_array, 0, &test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 10);
+  assert(read_test != &test);
 
   test.value = 20;
   test_array_insert_ptr(&test_array, 0, &test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 20);
-  cr_assert(read_test != &test);
+  assert(read_test->value == 20);
+  assert(read_test != &test);
 
-  cr_assert(test_array_count(&test_array) == 2);
+  assert(test_array_count(&test_array) == 2);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, insert_adds_correct_values) {
+void array_generator_insert_adds_correct_values() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -183,17 +185,17 @@ Test(array_generator, insert_adds_correct_values) {
 
   test_array_insert(&test_array, 0, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 10);
+  assert(read_test->value == 10);
 
   test.value = 20;
   test_array_insert(&test_array, 0, test);
   read_test = test_array_at_ptr(&test_array, 0);
-  cr_assert(read_test->value == 20);
+  assert(read_test->value == 20);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, automatic_growth) {
+void array_generator_automatic_growth() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
   struct nb_test * read_test;
@@ -206,8 +208,8 @@ Test(array_generator, automatic_growth) {
   test_array_push(&test_array, test);
   test_array_push(&test_array, test);
 
-  cr_assert(test_array_count(&test_array) == 6);
-  cr_assert(test_array.buffer.block_capacity >= 6);
+  assert(test_array_count(&test_array) == 6);
+  assert(test_array.buffer.block_capacity >= 6);
 
   test_array_release(&test_array);
 
@@ -215,8 +217,8 @@ Test(array_generator, automatic_growth) {
 
   test_array_assign(&test_array, 5, test);
 
-  cr_assert(test_array_count(&test_array) == 6);
-  cr_assert(test_array.buffer.block_capacity >= 6);
+  assert(test_array_count(&test_array) == 6);
+  assert(test_array.buffer.block_capacity >= 6);
 
   test_array_release(&test_array);
 
@@ -229,13 +231,13 @@ Test(array_generator, automatic_growth) {
   test_array_insert(&test_array, 0, test);
   test_array_insert(&test_array, 0, test);
 
-  cr_assert(test_array_count(&test_array) == 6);
-  cr_assert(test_array.buffer.block_capacity >= 6);
+  assert(test_array_count(&test_array) == 6);
+  assert(test_array.buffer.block_capacity >= 6);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, sort_sorts) {
+void array_generator_sort_sorts() {
   struct test_array test_array;
   struct nb_test test = {.value = 0};
   test_array_init(&test_array);
@@ -272,16 +274,16 @@ Test(array_generator, sort_sorts) {
 
   test_array_sort(&test_array, nb_test_compare);
 
-  for (int i = 0; i < test_array_count(&test_array); i++) { cr_expect_eq(test_array_at_ptr(&test_array, i)->value, i); }
+  for (int i = 0; i < test_array_count(&test_array); i++) { assert_eq(test_array_at_ptr(&test_array, i)->value, i); }
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, remove_decreases_count_correctly) {
+void array_generator_remove_decreases_count_correctly() {
   struct test_array test_array;
   struct nb_test test = {.value = 0};
   test_array_init(&test_array);
-  cr_assert(test_array_count(&test_array) == 0);
+  assert(test_array_count(&test_array) == 0);
   test_array_push_ptr(&test_array, &test);
   test_array_push_ptr(&test_array, &test);
   test_array_push_ptr(&test_array, &test);
@@ -290,18 +292,18 @@ Test(array_generator, remove_decreases_count_correctly) {
   test_array_push_ptr(&test_array, &test);
 
   test_array_remove_back(&test_array);
-  cr_assert(test_array_count(&test_array) == 5);
+  assert(test_array_count(&test_array) == 5);
 
   test_array_remove_front(&test_array);
-  cr_assert(test_array_count(&test_array) == 4);
+  assert(test_array_count(&test_array) == 4);
 
   test_array_remove_at(&test_array, 2);
-  cr_assert(test_array_count(&test_array) == 3);
+  assert(test_array_count(&test_array) == 3);
 
   test_array_release(&test_array);
 }
 
-Test(array_generator, remove_keeps_values_and_ordering) {
+void array_generator_remove_keeps_values_and_ordering() {
   struct test_array test_array;
   struct nb_test test;
 
@@ -313,42 +315,57 @@ Test(array_generator, remove_keeps_values_and_ordering) {
   }
 
   test_array_remove_front(&test_array);
-  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
-  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
-  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
-  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 4);
-  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 5);
-  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 6);
-  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 7);
-  cr_expect_eq(test_array_at_ptr(&test_array, 7)->value, 8);
-  cr_expect_eq(test_array_at_ptr(&test_array, 8)->value, 9);
+  assert_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  assert_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  assert_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  assert_eq(test_array_at_ptr(&test_array, 3)->value, 4);
+  assert_eq(test_array_at_ptr(&test_array, 4)->value, 5);
+  assert_eq(test_array_at_ptr(&test_array, 5)->value, 6);
+  assert_eq(test_array_at_ptr(&test_array, 6)->value, 7);
+  assert_eq(test_array_at_ptr(&test_array, 7)->value, 8);
+  assert_eq(test_array_at_ptr(&test_array, 8)->value, 9);
 
   test_array_remove_back(&test_array);
-  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
-  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
-  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
-  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 4);
-  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 5);
-  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 6);
-  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 7);
-  cr_expect_eq(test_array_at_ptr(&test_array, 7)->value, 8);
+  assert_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  assert_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  assert_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  assert_eq(test_array_at_ptr(&test_array, 3)->value, 4);
+  assert_eq(test_array_at_ptr(&test_array, 4)->value, 5);
+  assert_eq(test_array_at_ptr(&test_array, 5)->value, 6);
+  assert_eq(test_array_at_ptr(&test_array, 6)->value, 7);
+  assert_eq(test_array_at_ptr(&test_array, 7)->value, 8);
 
   test_array_remove_at(&test_array, 3);
-  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
-  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
-  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
-  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 5);
-  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 6);
-  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 7);
-  cr_expect_eq(test_array_at_ptr(&test_array, 6)->value, 8);
+  assert_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  assert_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  assert_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  assert_eq(test_array_at_ptr(&test_array, 3)->value, 5);
+  assert_eq(test_array_at_ptr(&test_array, 4)->value, 6);
+  assert_eq(test_array_at_ptr(&test_array, 5)->value, 7);
+  assert_eq(test_array_at_ptr(&test_array, 6)->value, 8);
 
   test_array_remove_at(&test_array, 4);
-  cr_expect_eq(test_array_at_ptr(&test_array, 0)->value, 1);
-  cr_expect_eq(test_array_at_ptr(&test_array, 1)->value, 2);
-  cr_expect_eq(test_array_at_ptr(&test_array, 2)->value, 3);
-  cr_expect_eq(test_array_at_ptr(&test_array, 3)->value, 5);
-  cr_expect_eq(test_array_at_ptr(&test_array, 4)->value, 7);
-  cr_expect_eq(test_array_at_ptr(&test_array, 5)->value, 8);
+  assert_eq(test_array_at_ptr(&test_array, 0)->value, 1);
+  assert_eq(test_array_at_ptr(&test_array, 1)->value, 2);
+  assert_eq(test_array_at_ptr(&test_array, 2)->value, 3);
+  assert_eq(test_array_at_ptr(&test_array, 3)->value, 5);
+  assert_eq(test_array_at_ptr(&test_array, 4)->value, 7);
+  assert_eq(test_array_at_ptr(&test_array, 5)->value, 8);
 
   test_array_release(&test_array);
+}
+
+int main(void) {
+  array_generator_init_works();
+  array_generator_init_advanced_works();
+  array_generator_push_adds_correct_values();
+  array_generator_push_ptr_adds_correct_values_not_pointers();
+  array_generator_assign_ptr_adds_correct_values_not_pointers();
+  array_generator_assign_adds_correct_values();
+  array_generator_insert_ptr_adds_correct_values_not_pointers();
+  array_generator_insert_adds_correct_values();
+  array_generator_automatic_growth();
+  array_generator_sort_sorts();
+  array_generator_remove_decreases_count_correctly();
+  array_generator_remove_keeps_values_and_ordering();
 }
