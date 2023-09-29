@@ -118,3 +118,13 @@ void insert_properly_keeps_other_values() {
 
   nb_release(&buffer);
 }
+
+int main(void) {
+  insert_increases_count_correctly();
+  insert_stores_the_right_values();
+  insert_store_values_not_addresses();
+  insert_properly_stretches_the_buffer();
+  insert_properly_keeps_other_values();
+
+  return 0;
+}
