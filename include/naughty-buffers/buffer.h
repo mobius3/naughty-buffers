@@ -23,10 +23,12 @@ standard
  * ones (`malloc` and friends)
  *
  * @subsection references Starting points
- * The <a href="group__buffer.html">Buffer</a> section is the API reference for the buffer management types and
+ * - The <a href="group__buffer.html">Buffer</a> section is the API reference for the buffer management types and
 functions.
- * The <a href="group__array-generator.html">Array Generator</a> section is the API reference for the type-safe wrapper
-generator macros.
+ * - The <a href="group__array-generator.html">Array Generator</a> section is the API reference for the type-safe
+wrapper generator macros.
+ * - Installation instructions can be found in the
+ * <a href="https://github.com/mobius3/naughty-buffers#integrating-with-your-code" target=_blank>README</a>
  */
 
 #include "naughty-buffers/naughty-buffers-export.h"
