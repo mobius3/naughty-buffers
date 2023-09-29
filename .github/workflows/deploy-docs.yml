@@ -19,6 +19,9 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+      - name: Install doxygen
+        uses: ssciwr/doxygen-install@v1.2.0
+
       - name: Configure CMake
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -27,11 +30,5 @@ jobs:
           -DBUILD_EXAMPLES=0
           -S ${{ github.workspace }}
 
-      - name: Configure doxygen
+      - name: Build doxygen docs
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target doc
-
-      - name: Build doxygen
-        uses: mattnotmitt/doxygen-action@v1.9.5
-        with:
-          working-directory: ${{ steps.strings.outputs.build-output-dir }}/doc
-          doxyfile-path: ${{ steps.strings.outputs.build-output-dir }}/doc/Doxygen
