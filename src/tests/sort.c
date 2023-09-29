@@ -1,5 +1,7 @@
-#include "criterion/criterion.h"
 #include "naughty-buffers/buffer.h"
+#include <assert.h>
+
+#define assert_eq(a, b) assert((a) == (b))
 
 size_t compare_call_count = 0;
 int int_compare(const void * ptr_a, const void * ptr_b) {
@@ -14,7 +16,7 @@ int read_int(const struct nb_buffer * buffer, size_t index) {
   return *read_value;
 }
 
-Test(sort, sort_sorts) {
+void sort_sorts() {
   struct nb_buffer buffer;
   int value = 0;
   nb_init(&buffer, sizeof(uint32_t));
@@ -51,12 +53,12 @@ Test(sort, sort_sorts) {
 
   nb_sort(&buffer, int_compare);
 
-  for (int i = 0; i < nb_block_count(&buffer); i++) { cr_expect_eq(read_int(&buffer, i), i); }
+  for (int i = 0; i < nb_block_count(&buffer); i++) { assert_eq(read_int(&buffer, i), i); }
 
   nb_release(&buffer);
 }
 
-Test(sort, sort_calls_compare_fn) {
+void sort_calls_compare_fn() {
   compare_call_count = 0;
   struct nb_buffer buffer;
   int value = 0;
@@ -70,7 +72,14 @@ Test(sort, sort_calls_compare_fn) {
 
   nb_sort(&buffer, int_compare);
 
-  cr_assert(compare_call_count > 0);
+  assert(compare_call_count > 0);
 
   nb_release(&buffer);
+}
+
+int main(void) {
+  sort_sorts();
+  sort_calls_compare_fn();
+
+  return 0;
 }
