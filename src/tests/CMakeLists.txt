@@ -11,7 +11,13 @@ macro(nb_test)
   message(STATUS "Adding test ${test_name} (${src})")
   add_executable(${test_name} ${src})
   target_link_libraries(${test_name} naughty-buffers)
-  add_test(NAME ${test_name} COMMAND ${test_name} WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src/naughty-buffers )
+  if (MSVC)
+    add_custom_command(TARGET ${test_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${test_name}> $<TARGET_FILE_DIR:${test_name}>
+            COMMAND_EXPAND_LISTS
+    )
+  endif()
+  add_test(NAME ${test_name} COMMAND ${test_name})
 endmacro()
 
 nb_test(test-memory-calls memory.c)
