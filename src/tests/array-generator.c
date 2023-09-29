@@ -1,5 +1,7 @@
 #include "naughty-buffers/array-generator.h"
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct nb_test {
   long value;
@@ -368,4 +370,6 @@ int main(void) {
   array_generator_sort_sorts();
   array_generator_remove_decreases_count_correctly();
   array_generator_remove_keeps_values_and_ordering();
+
+  return 0;
 }
