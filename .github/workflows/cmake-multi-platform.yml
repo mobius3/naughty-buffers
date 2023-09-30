@@ -83,4 +83,6 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ steps.strings.outputs.build-output-dir }}/*.(tar.gz|zip)
+          path: |
+            ${{ steps.strings.outputs.build-output-dir }}/*.tar.gz
+            ${{ steps.strings.outputs.build-output-dir }}/*.zip
