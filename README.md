@@ -138,13 +138,11 @@ cmake --build .
 
 ## Examples
 
-Examples for C and C++ are in the [src/examples](src/examples) folder. To build them, when running cmake as in [Compile from source](#compile-from-source), add the following variable:
+Examples for C are in the [src/examples](src/examples) folder. To build them, when running cmake as in [Compile from source](#compile-from-source), add the following variable:
 
 ```shell script
 cmake .. -DBUILD_EXAMPLES=1
 ```
-
-You will need SDL2 available and CMake needs to be able to find it.
 
 ## Documentation
 
