@@ -2,43 +2,56 @@
 #include "memory.h"
 #include <stdlib.h>
 
-static size_t size_t_max(size_t a, size_t b) {
+static inline void * ctx_alloc(struct nb_buffer * buffer, size_t size) {
+  return buffer->memory_context->alloc_fn(size, buffer->memory_context->context);
+}
+
+static inline void * ctx_realloc(struct nb_buffer * buffer, void * ptr, size_t size) {
+  return buffer->memory_context->realloc_fn(ptr, size, buffer->memory_context->context);
+}
+
+static inline void * ctx_copy(struct nb_buffer * buffer, void * destination, void * source, size_t size) {
+  return buffer->memory_context->copy_fn(destination, source, size, buffer->memory_context->context);
+}
+
+static inline void * ctx_move(struct nb_buffer * buffer, void * destination, void * source, size_t size) {
+  return buffer->memory_context->move_fn(destination, source, size, buffer->memory_context->context);
+}
+
+static inline void ctx_release(struct nb_buffer * buffer, void * ptr) {
+  buffer->memory_context->free_fn(ptr, buffer->memory_context->context);
+}
+
+struct nb_buffer_memory_context default_memory_context = {
+    .context = NULL,
+    .free_fn = nb_memory_release,
+    .copy_fn = nb_memory_copy,
+    .realloc_fn = nb_memory_realloc,
+    .alloc_fn = nb_memory_alloc,
+    .move_fn = nb_memory_move
+};
+
+static inline size_t size_t_max(size_t a, size_t b) {
   if (a > b) return a;
   else return b;
 }
 
 void nb_init(struct nb_buffer * buffer, size_t block_size) {
-  nb_init_advanced(
-      buffer, block_size, nb_memory_alloc, nb_memory_realloc, nb_memory_release, nb_memory_copy, nb_memory_move, NULL
-  );
+  nb_init_advanced(buffer, block_size, &default_memory_context);
 }
 
-void nb_init_advanced(
-    struct nb_buffer * buffer,
-    size_t block_size,
-    nb_alloc_fn alloc_fn,
-    nb_realloc_fn realloc_fn,
-    nb_free_fn free_fn,
-    nb_copy_fn copy_fn,
-    nb_move_fn move_fn,
-    void * memory_context
-) {
+void nb_init_advanced(struct nb_buffer * buffer, size_t block_size, struct nb_buffer_memory_context * memory_context) {
   buffer->block_size = block_size;
   buffer->block_capacity = 2;
   buffer->block_count = 0;
-  buffer->alloc_fn = alloc_fn;
-  buffer->realloc_fn = realloc_fn;
-  buffer->free_fn = free_fn;
-  buffer->copy_fn = copy_fn;
-  buffer->move_fn = move_fn;
   buffer->memory_context = memory_context;
-  buffer->data = buffer->alloc_fn(buffer->block_size * 2, buffer->memory_context);
+  buffer->data = ctx_alloc(buffer, buffer->block_size * 2);
 }
 
 uint8_t nb_grow(struct nb_buffer * buffer, size_t desired_capacity) {
   size_t new_block_capacity = buffer->block_capacity * 2;
   while (new_block_capacity <= desired_capacity) new_block_capacity *= 2;
-  void * new_data = buffer->realloc_fn(buffer->data, buffer->block_size * new_block_capacity, buffer->memory_context);
+  void * new_data = ctx_realloc(buffer, buffer->data, buffer->block_size * new_block_capacity);
   if (!new_data) return 0;
   buffer->data = new_data;
   buffer->block_capacity = new_block_capacity;
@@ -53,7 +66,7 @@ enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, void * data) {
 
   uint8_t * buffer_data = buffer->data;
   void * block_data = buffer_data + (buffer->block_count * buffer->block_size);
-  buffer->copy_fn(block_data, data, buffer->block_size, buffer->memory_context);
+  ctx_copy(buffer, block_data, data, buffer->block_size);
   buffer->block_count += 1;
   return NB_PUSH_OK;
 }
@@ -72,15 +85,11 @@ void * nb_front(struct nb_buffer * buffer) { return nb_at(buffer, 0); }
 void * nb_back(struct nb_buffer * buffer) { return nb_at(buffer, buffer->block_count - 1); }
 
 void nb_release(struct nb_buffer * buffer) {
-  buffer->free_fn(buffer->data, buffer->memory_context);
+  ctx_release(buffer, buffer->data);
 
   buffer->block_size = 0;
   buffer->block_capacity = 0;
   buffer->block_count = 0;
-  buffer->alloc_fn = NULL;
-  buffer->realloc_fn = NULL;
-  buffer->free_fn = NULL;
-  buffer->copy_fn = NULL;
   buffer->memory_context = NULL;
   buffer->data = NULL;
 }
@@ -92,7 +101,7 @@ enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer, size_t index, void * 
   }
   uint8_t * buffer_data = buffer->data;
   void * block_data = buffer_data + (index * buffer->block_size);
-  buffer->copy_fn(block_data, data, buffer->block_size, buffer->memory_context);
+  ctx_copy(buffer, block_data, data, buffer->block_size);
   if (index >= buffer->block_count) buffer->block_count = index + 1;
   return NB_ASSIGN_OK;
 }
@@ -109,9 +118,9 @@ enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * 
     uint8_t * dest = buffer_data + ((index + 1) * buffer->block_size);
     uint8_t * src = block_data;
     size_t move_size = (buffer->block_count - index) * buffer->block_size;
-    buffer->move_fn(dest, src, move_size, buffer->memory_context);
+    ctx_move(buffer, dest, src, move_size);
   }
-  buffer->copy_fn(block_data, data, buffer->block_size, buffer->memory_context);
+  ctx_copy(buffer, block_data, data, buffer->block_size);
   if (index >= buffer->block_count) buffer->block_count = index + 1;
   else buffer->block_count += 1;
   return NB_INSERT_OK;
@@ -133,7 +142,7 @@ void nb_remove_at(struct nb_buffer * buffer, size_t index) {
   uint8_t * src = buffer_data + ((index + 1) * buffer->block_size);
   size_t move_count = buffer->block_count - index - 1;
   size_t move_size = move_count * buffer->block_size;
-  buffer->move_fn(dest, src, move_size, buffer->memory_context);
+  ctx_move(buffer, dest, src, move_size);
   buffer->block_count--;
 }
 

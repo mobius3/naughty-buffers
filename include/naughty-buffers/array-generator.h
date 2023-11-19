@@ -84,10 +84,7 @@
     struct nb_buffer buffer;                                                                                           \
   };                                                                                                                   \
   void __NB_ARRAY_TYPE__##_init(struct __NB_ARRAY_TYPE__ * array);                                                     \
-  void __NB_ARRAY_TYPE__##_init_advanced(                                                                              \
-      struct __NB_ARRAY_TYPE__ * array, nb_alloc_fn alloc_fn, nb_realloc_fn realloc_fn, nb_free_fn free_fn,            \
-      nb_copy_fn copy_fn, nb_move_fn move_fn, void * memory_context                                                    \
-  );                                                                                                                   \
+  void __NB_ARRAY_TYPE__##_init_advanced(struct __NB_ARRAY_TYPE__ * array, struct nb_buffer_memory_context * ctx);     \
   enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push(struct __NB_ARRAY_TYPE__ * array, const __NB_ARRAY_BLOCK_TYPE__ item);  \
   enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push_ptr(                                                                    \
       struct __NB_ARRAY_TYPE__ * array, const __NB_ARRAY_BLOCK_TYPE__ * item                                           \
@@ -125,14 +122,8 @@
   void __NB_ARRAY_TYPE__##_init(struct __NB_ARRAY_TYPE__ * array) {                                                    \
     nb_init(&array->buffer, sizeof(__NB_ARRAY_BLOCK_TYPE__));                                                          \
   }                                                                                                                    \
-  void __NB_ARRAY_TYPE__##_init_advanced(                                                                              \
-      struct __NB_ARRAY_TYPE__ * array, nb_alloc_fn alloc_fn, nb_realloc_fn realloc_fn, nb_free_fn free_fn,            \
-      nb_copy_fn copy_fn, nb_move_fn move_fn, void * memory_context                                                    \
-  ) {                                                                                                                  \
-    nb_init_advanced(                                                                                                  \
-        &array->buffer, sizeof(__NB_ARRAY_BLOCK_TYPE__), alloc_fn, realloc_fn, free_fn, copy_fn, move_fn,              \
-        memory_context                                                                                                 \
-    );                                                                                                                 \
+  void __NB_ARRAY_TYPE__##_init_advanced(struct __NB_ARRAY_TYPE__ * array, struct nb_buffer_memory_context * ctx) {    \
+    nb_init_advanced(&array->buffer, sizeof(__NB_ARRAY_BLOCK_TYPE__), ctx);                                            \
   }                                                                                                                    \
   enum NB_PUSH_RESULT __NB_ARRAY_TYPE__##_push(struct __NB_ARRAY_TYPE__ * array, const __NB_ARRAY_BLOCK_TYPE__ item) { \
     return nb_push(&array->buffer, (void *)&item);                                                                     \

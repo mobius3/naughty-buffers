@@ -46,6 +46,14 @@ void * nb_test_move(void * destination, const void * source, size_t size, void *
   return memmove(destination, source, size);
 }
 
+struct nb_buffer_memory_context ctx = {
+    .move_fn = nb_test_move,
+    .alloc_fn = nb_test_alloc,
+    .realloc_fn = nb_test_realloc,
+    .copy_fn = nb_test_copy,
+    .free_fn = nb_test_release
+};
+
 void reset() {
   alloc_call_count = 0;
   alloc_call_size = 0;
@@ -59,15 +67,9 @@ void reset() {
 void memory_custom_memory_functions_and_context_are_initialized_properly() {
   reset();
   struct nb_buffer buffer;
-  nb_init_advanced(
-      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
-  );
+  nb_init_advanced(&buffer, sizeof(uint32_t), &ctx);
 
-  assert(buffer.alloc_fn == nb_test_alloc);
-  assert(buffer.realloc_fn == nb_test_realloc);
-  assert(buffer.free_fn == nb_test_release);
-  assert(buffer.copy_fn == nb_test_copy);
-  assert(buffer.memory_context == &buffer);
+  assert(buffer.memory_context == &ctx);
 
   nb_release(&buffer);
 }
@@ -77,9 +79,7 @@ void memory_custom_memory_is_properly_called_with_push() {
 
   struct nb_buffer buffer;
   size_t value = 1;
-  nb_init_advanced(
-      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
-  );
+  nb_init_advanced(&buffer, sizeof(uint32_t), &ctx);
   assert(alloc_call_count == 1);
   assert(alloc_call_size == sizeof(uint32_t) * 2);
 
@@ -113,9 +113,7 @@ void memory_custom_memory_is_properly_called_with_assign() {
 
   struct nb_buffer buffer;
   size_t value = 1;
-  nb_init_advanced(
-      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
-  );
+  nb_init_advanced(&buffer, sizeof(uint32_t), &ctx);
 
   realloc_call_count = 0;
   copy_call_count = 0;
@@ -138,9 +136,7 @@ void memory_custom_memory_is_properly_called_with_assign() {
 
 void memory_custom_memory_is_properly_called_with_insert() {
   struct nb_buffer buffer;
-  nb_init_advanced(
-      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
-  );
+  nb_init_advanced(&buffer, sizeof(uint32_t), &ctx);
 
   size_t value = 1;
   nb_push(&buffer, &value);
@@ -169,9 +165,7 @@ void memory_custom_memory_is_properly_called_with_insert() {
 
 void memory_custom_memory_is_properly_called_with_remove() {
   struct nb_buffer buffer;
-  nb_init_advanced(
-      &buffer, sizeof(uint32_t), nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &buffer
-  );
+  nb_init_advanced(&buffer, sizeof(uint32_t), &ctx);
 
   size_t value = 1;
   nb_push(&buffer, &value);
