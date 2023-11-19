@@ -131,11 +131,11 @@ struct nb_buffer_memory_context {
  * @ingroup buffer
  */
 struct nb_buffer_iterator {
-  /** Marks the initial data block, casted to uint8_t for easier handling */
-  uint8_t * begin;
+  /** Marks the initial data block */
+  void * begin;
 
   /** Marks past the final data block. Do not dereference it. */
-  uint8_t * end;
+  void * end;
 
   /** The value to add to the block pointer in each iteration */
   size_t increment;
