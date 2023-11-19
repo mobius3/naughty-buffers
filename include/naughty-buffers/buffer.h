@@ -83,6 +83,48 @@ typedef void (*nb_free_fn)(void * ptr, void * context);
 typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
 
 /**
+ * @brief A structure containing memory-related pointers
+ *
+ * This is only useful if you have your own allocator or custom memory management.
+ *
+ * @sa nb_init_advanced
+ * @sa nb_alloc_fn
+ * @sa nb_realloc_fn
+ * @sa nb_free_fn
+ * @sa nb_copy_fn
+ * @sa nb_move_fn
+ * @ingroup buffer
+ */
+struct nb_buffer_memory_context {
+  /** A function to allocate a memory block. It needs to have the same semantics of `malloc` */
+  nb_alloc_fn alloc_fn;
+
+  /** A function to reallocate a memory block. It needs to have the same semantics of `realloc` */
+  nb_realloc_fn realloc_fn;
+
+  /**
+   * A function to release a memory block allocated by `alloc_fn` or `realloc_fn`. Needs to have the same
+   * semantics of `free`
+   */
+  nb_free_fn free_fn;
+
+  /**
+   * A function to copy non-overlapping data from a block to another. It needs to have the same semantics
+   * of `memcpy`
+   */
+  nb_copy_fn copy_fn;
+
+  /**
+   * A function to copy possibly overlapping data from a block to another. It needs to have the same
+   * semantics of `memmove`
+   */
+  nb_move_fn move_fn;
+
+  /** A pointer to a user-data that will be passed in every memory-related call */
+  void * context;
+};
+
+/**
  * @brief a structure holding the buffer data and metadata about the blocks.
  *
  * It should be treated as an opaque structure and be access through naughty-buffers functions.
@@ -99,12 +141,7 @@ struct nb_buffer {
   size_t block_count;
   size_t block_capacity;
 
-  nb_alloc_fn alloc_fn;
-  nb_realloc_fn realloc_fn;
-  nb_free_fn free_fn;
-  nb_copy_fn copy_fn;
-  nb_move_fn move_fn;
-  void * memory_context;
+  struct nb_buffer_memory_context * memory_context;
 
   void * data;
 };
@@ -151,44 +188,40 @@ enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
 NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size);
 
 /**
- * @brief Initializes a ::nb_buffer struct with custom memory functions and context.
+ * @brief Initializes a ::nb_buffer struct with custom memory functions and memory_context.
  *
- * You need to provide all custom memory functions and optionally a memory context.
+ * You need to provide all custom memory functions and optionally a memory memory_context.
  *
  * It will allocate enough memory to contain two blocks with `alloc_fn`
  *
  * @param buffer A pointer to a ::nb_buffer struct to be initialized
  * @param block_size Size, in bytes, for each buffer block
- * @param alloc_fn A function to allocate a memory block. It needs to have the same semantics of `malloc`
- * @param realloc_fn A function to reallocate a memory block. It needs to have the same semantics of `realloc`
- * @param free_fn A function to release a memory block allocated by `alloc_fn` or `realloc_fn`. Needs to have the same
- * semantics of `free`
- * @param copy_fn A function to copy non-overlapping data from a block to another. It needs to have the same semantics
- * of `memcpy`
- * @param move_fn A function to copy possibly overlapping data from a block to another. It needs to have the same
- * semantics of `memmove`
- * @param memory_context A pointer to an optional context that will be passed to each memory function.
+ * @param memory_context A pointer to a `struct nb_buffer_memory_context` that will be used when memory management is needed.
  *
  * **Example**
  * @code
-  void * my_alloc(size_t memory_size, void * context);
-  void my_release(void * ptr, void * context);
-  void * my_realloc(void * ptr, size_t memory_size, void * context);
-  void * my_copy(void * destination, const void * source, size_t size, void * context);
-  void * my_move(void * destination, const void * source, size_t size, void * context);
+  void * my_alloc(size_t memory_size, void * memory_context);
+  void my_release(void * ptr, void * memory_context);
+  void * my_realloc(void * ptr, size_t memory_size, void * memory_context);
+  void * my_copy(void * destination, const void * source, size_t size, void * memory_context);
+  void * my_move(void * destination, const void * source, size_t size, void * memory_context);
   void * memory_context;
+
+  struct nb_buffer_memory_context ctx = {
+    .alloc = my_alloc,
+    .free = my_release,
+    .realloc = my_realloc,
+    .copy = my_copy,
+    .move = my_move,
+    .context = memory_context
+  };
 
   int main(void) {
     struct nb_buffer buffer;
     nb_init_advanced(
       &buffer,
       sizeof(int),
-      my_alloc,
-      my_realloc,
-      my_release,
-      my_copy,
-      my_move,
-      memory_context
+      &ctx
     );
 
     nb_release(&buffer);
@@ -202,12 +235,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_init(struct nb_buffer * buffer, size_t block_size
 NAUGHTY_BUFFERS_EXPORT void nb_init_advanced(
     struct nb_buffer * buffer,
     size_t block_size,
-    nb_alloc_fn alloc_fn,
-    nb_realloc_fn realloc_fn,
-    nb_free_fn free_fn,
-    nb_copy_fn copy_fn,
-    nb_move_fn move_fn,
-    void * memory_context
+    struct nb_buffer_memory_context * memory_context
 );
 
 /**

@@ -59,11 +59,11 @@ int main(void) {
 ```c
 #include "naughty-buffers/buffer.h"
 
-void * my_alloc(size_t memory_size, void * context);
-void my_release(void * ptr, void * context);
-void * my_realloc(void * ptr, size_t memory_size, void * context);
-void * my_copy(void * destination, const void * source, size_t size, void * context);
-void * my_move(void * destination, const void * source, size_t size, void * context);
+void * my_alloc(size_t memory_size, void * memory_context);
+void my_release(void * ptr, void * memory_context);
+void * my_realloc(void * ptr, size_t memory_size, void * memory_context);
+void * my_copy(void * destination, const void * source, size_t size, void * memory_context);
+void * my_move(void * destination, const void * source, size_t size, void * memory_context);
 void * memory_context;
 
 

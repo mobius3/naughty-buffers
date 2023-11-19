@@ -45,6 +45,14 @@ void * nb_test_move(void * destination, const void * source, size_t size, void *
   return memmove(destination, source, size);
 }
 
+struct nb_buffer_memory_context ctx = {
+    .move_fn = nb_test_move,
+    .alloc_fn = nb_test_alloc,
+    .realloc_fn = nb_test_realloc,
+    .copy_fn = nb_test_copy,
+    .free_fn = nb_test_release
+};
+
 void array_generator_init_works() {
   struct test_array test_array;
   test_array_init(&test_array);
@@ -56,15 +64,9 @@ void array_generator_init_works() {
 
 void array_generator_init_advanced_works() {
   struct test_array test_array;
-  test_array_init_advanced(
-      &test_array, nb_test_alloc, nb_test_realloc, nb_test_release, nb_test_copy, nb_test_move, &test_array
-  );
+  test_array_init_advanced(&test_array, &ctx);
 
-  assert(test_array.buffer.alloc_fn == nb_test_alloc);
-  assert(test_array.buffer.realloc_fn == nb_test_realloc);
-  assert(test_array.buffer.free_fn == nb_test_release);
-  assert(test_array.buffer.copy_fn == nb_test_copy);
-  assert(test_array.buffer.memory_context == &test_array);
+  assert(test_array.buffer.memory_context == &ctx);
 
   assert(test_array.buffer.block_size == sizeof(struct nb_test));
 
