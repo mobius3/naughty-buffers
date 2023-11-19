@@ -93,6 +93,7 @@ typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
  * @sa nb_free_fn
  * @sa nb_copy_fn
  * @sa nb_move_fn
+ * @ingroup buffer
  */
 struct nb_buffer_memory_context {
   /** A function to allocate a memory block. It needs to have the same semantics of `malloc` */
