@@ -125,6 +125,23 @@ struct nb_buffer_memory_context {
 };
 
 /**
+ * @brief Structure returned by ::nb_iterator containing enough information to control a for-loop
+ *
+ * @sa ::nb_iterator
+ * @ingroup buffer
+ */
+struct nb_buffer_iterator {
+  /** Marks the initial data block, casted to uint8_t for easier handling */
+  uint8_t * begin;
+
+  /** Marks past the final data block. Do not dereference it. */
+  uint8_t * end;
+
+  /** The value to add to the block pointer in each iteration */
+  size_t increment;
+};
+
+/**
  * @brief a structure holding the buffer data and metadata about the blocks.
  *
  * It should be treated as an opaque structure and be access through naughty-buffers functions.
@@ -473,6 +490,42 @@ NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn com
  * @ingroup buffer
  */
 NAUGHTY_BUFFERS_EXPORT void nb_release(struct nb_buffer * buffer);
+
+/**
+ * @brief Creates and returns an iterator that allows for performance-friendly traversal.
+ *
+ * If you intend to access a lot of elements in sequence, this is the preferred method to do so as it offers better
+ * performance in comparison to ::nb_at
+ *
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @returns A `nb_buffer_iterator` struct with values that can be used to control a for-loop.
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value;
+
+    value = 0; nb_push(&buffer, &value);
+    value = 10; nb_push(&buffer, &value);
+    value = 20; nb_push(&buffer, &value);
+
+    struct nb_buffer_iterator itr = nb_iterator(&buffer);
+
+    for (uint8_t * block = itr.begin; block != itr.end; block += itr.increment) {
+      int * data = (int *) block;
+      printf("data: %d\n", *data);
+    }
+
+    nb_release(&buffer);
+    return 0;
+  }
+ * @endcode
+ */
+NAUGHTY_BUFFERS_EXPORT struct nb_buffer_iterator nb_iterator(struct nb_buffer * buffer);
 
 #ifdef __cplusplus
 };
