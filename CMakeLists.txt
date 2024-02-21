@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(naughty-buffers LANGUAGES C VERSION 1.1.0)
+project(naughty-buffers LANGUAGES C VERSION 1.1.1)
 
 include(GNUInstallDirs)
 include(GenerateExportHeader)
