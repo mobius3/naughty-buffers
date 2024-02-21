@@ -149,3 +149,11 @@ void nb_remove_at(struct nb_buffer * buffer, size_t index) {
 void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn) {
   qsort(buffer->data, buffer->block_count, buffer->block_size, compare_fn);
 }
+
+struct nb_buffer_iterator nb_iterator(struct nb_buffer * buffer) {
+  return (struct nb_buffer_iterator) {
+    .begin = (uint8_t *) buffer->data,
+    .end = (uint8_t *) buffer->data + (buffer->block_count * buffer->block_size),
+    .increment = buffer->block_size
+  };
+}
