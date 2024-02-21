@@ -12,13 +12,13 @@ endif (MSVC)
 
 set(CPACK_PACKAGE_VENDOR "Leonardo G. L. de Freitas")
 set(CPACK_PACKAGE_DESCRIPTION
-    "Font Chef is a cross-platform C99 library providing dynamic generic buffers")
+    "Naughty Buffers is a cross-platform C99 library providing dynamic generic buffers")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_DESCRIPTION}")
 set(CPACK_PACKAGE_FILE_NAME
     "${PROJECT_NAME}-${PROJECT_VERSION}-${NAUGHTY_BUFFERS_SYSTEM_NAME}-${NAUGHTY_BUFFERS_ARCH}-${NAUGHTY_BUFFERS_COMPILER_TARGET}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME
     "${PROJECT_NAME}-${PROJECT_VERSION}")
-set(CPACK_PACKAGE_NAME KiWi)
+set(CPACK_PACKAGE_NAME naughty-buffers)
 
 set(CPACK_SOURCE_IGNORE_FILES .*build.*/ .idea/ .git/)
 
