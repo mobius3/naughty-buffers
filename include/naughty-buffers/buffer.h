@@ -378,6 +378,49 @@ NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer, size_t index, void * data);
 
+
+ /**
+  * @brief Copies `block_count` blocks from `data` to the buffer starting at `index`.
+  *
+  * If `index` or `index + block_count` is larger than the buffer capacity the buffer data will be reallocated to accommodate the new data.
+  * Uninitialized data will be present in the blocks preceding the new data if they were not present before.
+  *
+  * Caller is expected to ensure that `data` points at the first block to be copied from and that it has
+  * at least `block_count * block_size` bytes.
+  *
+  * @param buffer A pointer to a ::nb_buffer struct
+  * @param index The block index to assign the data to
+  * @param data A pointer to the data to be copied in the buffer at the specified index.
+  * @param block_count Amount of blocks to copy from `data` into the buffer
+  * @return NB_ASSIGN_OK if assignment was successful or NB_ASSIGN_OUT_OF_MEMORY if out of memory
+  * @ingroup buffer
+  *
+  * **Example**
+  * @code
+   int main(void) {
+     struct nb_buffer buffer;
+     nb_init(&buffer, sizeof(int));
+     int value[3] = { 20, 21, 22 };
+
+     int * read_value;
+     nb_assign_many(&buffer, 20, value, 3);
+     read_value = (int*) nb_at(&buffer, 20);
+     assert(*read_value = 20);
+
+     read_value = (int*) nb_at(&buffer, 21);
+     assert(*read_value = 21);
+
+     read_value = (int*) nb_at(&buffer, 22);
+     assert(*read_value = 22);
+
+     nb_release(&buffer);
+
+     return 0;
+   }
+  *  @endcode
+  */
+ NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign_many(struct nb_buffer * buffer, size_t index, void * data, size_t block_count);
+
 /**
  * @brief Inserts `data` to the block at index `index` moving all blocks past the index forward one position.
  *
