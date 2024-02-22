@@ -95,14 +95,18 @@ void nb_release(struct nb_buffer * buffer) {
 }
 
 enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer, size_t index, void * data) {
-  if (index >= buffer->block_capacity) {
-    uint8_t grow_success = nb_grow(buffer, index + 1);
+  return nb_assign_many(buffer, index, data, 1);
+}
+
+enum NB_ASSIGN_RESULT nb_assign_many(struct nb_buffer * buffer, size_t index, void * data, size_t block_count) {
+  if (index + block_count >= buffer->block_capacity) {
+    uint8_t grow_success = nb_grow(buffer, index + block_count);
     if (!grow_success) return NB_ASSIGN_OUT_OF_MEMORY;
   }
   uint8_t * buffer_data = buffer->data;
   void * block_data = buffer_data + (index * buffer->block_size);
-  ctx_copy(buffer, block_data, data, buffer->block_size);
-  if (index >= buffer->block_count) buffer->block_count = index + 1;
+  ctx_copy(buffer, block_data, data, buffer->block_size * block_count);
+  if (index + block_count >= buffer->block_count) buffer->block_count = index + block_count;
   return NB_ASSIGN_OK;
 }
 
