@@ -202,7 +202,6 @@ void array_generator_insert_adds_correct_values() {
 void array_generator_automatic_growth() {
   struct test_array test_array;
   struct nb_test test = {.value = 10};
-  struct nb_test * read_test;
   test_array_init(&test_array);
 
   test_array_push(&test_array, test);

@@ -293,7 +293,7 @@ NAUGHTY_BUFFERS_EXPORT enum NB_PUSH_RESULT nb_push(struct nb_buffer * buffer, vo
  *
  * See ::nb_push example
  */
-NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(struct nb_buffer * buffer);
+NAUGHTY_BUFFERS_EXPORT size_t nb_block_count(const struct nb_buffer * buffer);
 
 /**
  * @brief Returns a pointer to the block at position `index` or NULL if the index is out of bounds
@@ -327,24 +327,22 @@ NAUGHTY_BUFFERS_EXPORT void * nb_at(const struct nb_buffer * buffer, size_t inde
  * This is equivalent to calling ::nb_at with index 0
  *
  * @param buffer A pointer to a ::nb_buffer struct
- * @param index The index to read
  * @return A pointer to the block data or NULL if the buffer is empty
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
  * @ingroup buffer
  */
-NAUGHTY_BUFFERS_EXPORT void * nb_front(struct nb_buffer * buffer);
+NAUGHTY_BUFFERS_EXPORT void * nb_front(const struct nb_buffer * buffer);
 
 /**
  * @brief Returns a pointer to the last block or NULL if the buffer is empty
  * This is equivalent to calling ::nb_at with index `nb_block_count(&buffer) -1`
  *
  * @param buffer A pointer to a ::nb_buffer struct
- * @param index The index to read
  * @return A pointer to the block data or NULL if the buffer is empty
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
  * @ingroup buffer
  */
-NAUGHTY_BUFFERS_EXPORT void * nb_back(struct nb_buffer * buffer);
+NAUGHTY_BUFFERS_EXPORT void * nb_back(const struct nb_buffer * buffer);
 
 /**
  * @brief Copies `data` to the block at index `index`.
@@ -486,6 +484,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_back(struct nb_buffer * buffer);
  *
  * @warning This function will invalidate pointers previously returned by ::nb_at for blocks at the index and past it
  * @param buffer A pointer to a ::nb_buffer struct
+ * @param index The block index to remove
  * @sa nb_remove_front
  * @sa nb_remove_back
  * @ingroup buffer
@@ -522,7 +521,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index
  * equal and > 0 if the first element should come after the second
  * @ingroup buffer
  */
-NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
+NAUGHTY_BUFFERS_EXPORT void nb_sort(const struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
 /**
  * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an
@@ -568,7 +567,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_release(struct nb_buffer * buffer);
   }
  * @endcode
  */
-NAUGHTY_BUFFERS_EXPORT struct nb_buffer_iterator nb_iterator(struct nb_buffer * buffer);
+NAUGHTY_BUFFERS_EXPORT struct nb_buffer_iterator nb_iterator(const struct nb_buffer * buffer);
 
 #ifdef __cplusplus
 };
