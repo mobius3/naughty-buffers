@@ -44,6 +44,8 @@ extern "C" {
  * @brief Type of a function able to allocate a block of memory that will be called when the buffer gets initialized. It
  * should function as `malloc`.
  * @ingroup buffer
+ * @sa nb_init_advanced
+ * @sa nb_buffer_memory_context
  */
 typedef void * (*nb_alloc_fn)(size_t size, void * context);
 
@@ -51,6 +53,8 @@ typedef void * (*nb_alloc_fn)(size_t size, void * context);
  * @brief Type of a function able to realloc a memory block, to be called when a buffer needs to enlarge its internal
  * memory it will call this function. It should function as `realloc`.
  * @ingroup buffer
+ * @sa nb_init_advanced
+ * @sa nb_buffer_memory_context
  */
 typedef void * (*nb_realloc_fn)(void * ptr, size_t new_size, void * context);
 
@@ -58,6 +62,8 @@ typedef void * (*nb_realloc_fn)(void * ptr, size_t new_size, void * context);
  * @brief Type of a function able to copy a chunk of memory from source to destination, to be called when inserting,
  * assigning or pushing data. It will never be called with overlapping memory. It should function as `memcpy`.
  * @ingroup buffer
+ * @sa nb_init_advanced
+ * @sa nb_buffer_memory_context
  */
 typedef void * (*nb_copy_fn)(void * destination, const void * source, size_t size, void * context);
 
@@ -65,6 +71,8 @@ typedef void * (*nb_copy_fn)(void * destination, const void * source, size_t siz
  * @brief Type of a function able to move a chunk of memory from source to destination, to be called when inserting or
  * removing data from the buffer. It needs to handle overlapping memory and should function like `memmove`.
  * @ingroup buffer
+ * @sa nb_init_advanced
+ * @sa nb_buffer_memory_context
  */
 typedef void * (*nb_move_fn)(void * destination, const void * source, size_t size, void * context);
 
@@ -72,15 +80,51 @@ typedef void * (*nb_move_fn)(void * destination, const void * source, size_t siz
  * @brief Type of a function able to release memory pointed by `ptr`, to be called when the buffer gets released. It
  * should function like `free`.
  * @ingroup buffer
+ * @sa nb_init_advanced
+ * @sa nb_buffer_memory_context
  */
 typedef void (*nb_free_fn)(void * ptr, void * context);
 
+ /**
+  * @brief Result of calling ::nb_push
+  * @ingroup buffer
+  * @sa nb_push
+  */
+ enum NB_PUSH_RESULT { NB_PUSH_OUT_OF_MEMORY, NB_PUSH_OK };
+
+ /**
+  * @brief Result of calling ::nb_assign
+  * @ingroup buffer
+  * @sa nb_assign
+  * @sa nb_assign_many
+  */
+ enum NB_ASSIGN_RESULT { NB_ASSIGN_OUT_OF_MEMORY, NB_ASSIGN_OK };
+
+ /**
+  * @brief Result of calling ::nb_insert
+  * @ingroup buffer
+  * @sa nb_insert
+  */
+ enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
+
+ /**
+  * @brief Result of comparing two buffer members (how `ptr_a` compares to `ptr_b`)
+  * @ingroup buffer
+  */
+ enum NB_COMPARE_RESULT { NB_COMPARE_LOWER = -1, NB_COMPARE_EQUAL = 0, NB_COMPARE_HIGHER = 1 };
+
 /**
- * @brief Type of a function that can compare two blocks, returning `< 0` if `*ptr_a < *ptr_b`, `0` if `*ptr_a ==
- * *ptr_b` or `> 0` if `*ptr_a > *ptr_b`.
+ * @brief Type of a function that returns how the first block (`ptr_a`) compares to the second (`ptr_b`).
+ * - If `ptr_a` is greater than `ptr_b` the funciton should return `NB_COMPARE_HIGHER`
+ * - If `ptr_a` is lower than `ptr_b` the funciton should return `NB_COMPARE_LOWER`
+ * - If `ptr_a` is equal to `ptr_b` the funciton should return `NB_COMPARE_EQUAL`
+ *
  * @ingroup buffer
+ * @sa nb_sort
+ * @sa nb_insert_sorted
+ * @sa nb_search
  */
-typedef int (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
+typedef enum NB_COMPARE_RESULT (*nb_compare_fn)(const void * ptr_a, const void * ptr_b);
 
 /**
  * @brief A structure containing memory-related pointers
@@ -162,24 +206,6 @@ struct nb_buffer {
 
   void * data;
 };
-
-/**
- * @brief Result of calling ::nb_push
- * @ingroup buffer
- */
-enum NB_PUSH_RESULT { NB_PUSH_OUT_OF_MEMORY, NB_PUSH_OK };
-
-/**
- * @brief Result of calling ::nb_assign
- * @ingroup buffer
- */
-enum NB_ASSIGN_RESULT { NB_ASSIGN_OUT_OF_MEMORY, NB_ASSIGN_OK };
-
-/**
- * @brief Result of calling ::nb_insert
- * @ingroup buffer
- */
-enum NB_INSERT_RESULT { NB_INSERT_OUT_OF_MEMORY, NB_INSERT_OK };
 
 /**
  * @brief Initializes a ::nb_buffer struct with default values and pointers.
@@ -342,7 +368,22 @@ NAUGHTY_BUFFERS_EXPORT void * nb_front(const struct nb_buffer * buffer);
  * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
  * @ingroup buffer
  */
-NAUGHTY_BUFFERS_EXPORT void * nb_back(const struct nb_buffer * buffer);
+ NAUGHTY_BUFFERS_EXPORT void * nb_back(const struct nb_buffer * buffer);
+
+/**
+ * @brief Preforms a binary search in the buffer and return a pointer to the found value.
+ *
+ * `compare_fn` will be called multiple times while looking for the item. `ptr_a` will
+ * always be passed as the first argument to the compare function.
+ *
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @param ptr_a A pointer to a block of data that will be passed as `ptr_a` to the compare function.
+ *  @param compare_fn The comparison function
+ * @return A pointer to the block data or NULL if the search didn't provide a result
+ * @warning Using ::nb_push, ::nb_insert or ::nb_assign might invalidate previous pointers returned by this function
+ * @ingroup buffer
+ */
+ NAUGHTY_BUFFERS_EXPORT void * nb_search(const struct nb_buffer * buffer, void * ptr_a, nb_compare_fn compare_fn);
 
 /**
  * @brief Copies `data` to the block at index `index`.
@@ -453,6 +494,46 @@ NAUGHTY_BUFFERS_EXPORT enum NB_ASSIGN_RESULT nb_assign(struct nb_buffer * buffer
  */
 NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, size_t index, void * data);
 
+ /**
+ * @brief Finds a suitable block index in the buffer and copies `data` to that block, keeping the buffer sorted by `compare_fn`
+ *
+ * All blocks in positions greater or equal than the one at the found index will be moved forward by 1 position.
+ * @param buffer A pointer to a ::nb_buffer struct
+ * @param compare_fn The comparison function
+ * @param data A pointer to the data to be copied in the buffer at the found index.
+ * @return NB_INSERT_OK if assignment was successful or NB_INSERT_OUT_OF_MEMORY if out of memory
+ * @ingroup buffer
+ *
+ * **Example**
+ * @code
+   enum NB_COMPARE_RESULT my_cmp(void * ptr_a, void * ptr_b) {
+     int a = *((int *) ptr_a);
+     int b = *((int *) ptr_b);
+     if (a < b) return NB_COMPARE_LOWER;
+     else if (a > b) return NB_COMPARE_HIGHER;
+     else return NB_COMPARE_EQUAL;
+  }
+  int main(void) {
+    struct nb_buffer buffer;
+    nb_init(&buffer, sizeof(int));
+
+    int value = 10;
+    nb_push(&buffer, &value);
+
+    value = 0;
+    nb_insert_sorted(&buffer, my_cmp, &value);
+    assert(nb_block_count(&buffer) == 2);
+    int read_value = *((int *) nb_at(0))
+    assert(read_value == 0);
+
+    nb_release(&buffer);
+
+    return 0;
+  }
+ * @endcode
+ */
+ NAUGHTY_BUFFERS_EXPORT enum NB_INSERT_RESULT nb_insert_sorted(struct nb_buffer * buffer, nb_compare_fn compare_fn, void * data);
+
 /**
  * @brief Removes the block at index 0 from the array moving all other blocks to the beginning.
  *
@@ -517,9 +598,9 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index
  * @brief Sorts the buffer using stdlib's qsort function.
  *
  * @param buffer A pointer to a ::nb_buffer struct
- * @param compare_fn A comparison fuction returnin < 0 if the first element should come before the second, 0 if they're
- * equal and > 0 if the first element should come after the second
+ * @param compare_fn The comparison function
  * @ingroup buffer
+ * @sa nb_compare_fn
  */
 NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 

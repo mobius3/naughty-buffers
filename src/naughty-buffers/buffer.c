@@ -1,4 +1,5 @@
 #include "naughty-buffers/buffer.h"
+
 #include "memory.h"
 #include <stdlib.h>
 
@@ -20,6 +21,41 @@ static void * ctx_move(struct nb_buffer * buffer, void * destination, void * sou
 
 static void ctx_release(struct nb_buffer * buffer, void * ptr) {
   buffer->memory_context->free_fn(ptr, buffer->memory_context->context);
+}
+
+enum SEARCH_RESULT_TYPE {
+  INSERT_AT,
+  FOUND_AT
+};
+
+struct search_result {
+  enum SEARCH_RESULT_TYPE type;
+  size_t index;
+};
+
+static struct search_result internal_search(const struct nb_buffer * buffer, const void * ptr, const nb_compare_fn compare_fn) {
+  size_t high = buffer->block_count -1;
+  size_t low = 0;
+  while (low <= high) {
+    const size_t mid = (high + low) / 2;
+    switch (compare_fn(ptr, nb_at(buffer, mid))) {
+      case NB_COMPARE_EQUAL: return (struct search_result) { .type = FOUND_AT, .index = mid };
+      case NB_COMPARE_HIGHER: high = mid - 1; break;
+      case NB_COMPARE_LOWER: low = mid + 1; break;
+    }
+  }
+  return (struct search_result) { .type = INSERT_AT, .index = low};
+}
+
+static size_t insertion_point(const struct nb_buffer * buffer, const void * ptr, const nb_compare_fn compare_fn) {
+  const struct search_result result = internal_search(buffer, ptr, compare_fn);
+  return result.index;
+}
+
+static size_t index_of(const struct nb_buffer * buffer, const void * ptr, const nb_compare_fn compare_fn) {
+  const struct search_result result = internal_search(buffer, ptr, compare_fn);
+  if (result.type == INSERT_AT) return SIZE_MAX;
+  return result.index;
 }
 
 struct nb_buffer_memory_context default_memory_context = {
@@ -84,6 +120,12 @@ void * nb_front(const struct nb_buffer * buffer) { return nb_at(buffer, 0); }
 
 void * nb_back(const struct nb_buffer * buffer) { return nb_at(buffer, buffer->block_count - 1); }
 
+void * nb_search(const struct nb_buffer * buffer, void * ptr_a, nb_compare_fn compare_fn) {
+  const size_t index = index_of(buffer, ptr_a, compare_fn);
+  if (index == SIZE_MAX) return NULL;
+  return nb_at(buffer, index);
+}
+
 void nb_release(struct nb_buffer * buffer) {
   ctx_release(buffer, buffer->data);
 
@@ -128,6 +170,10 @@ enum NB_INSERT_RESULT nb_insert(struct nb_buffer * buffer, const size_t index, v
   if (index >= buffer->block_count) buffer->block_count = index + 1;
   else buffer->block_count += 1;
   return NB_INSERT_OK;
+}
+
+enum NB_INSERT_RESULT nb_insert_sorted(struct nb_buffer * buffer, nb_compare_fn compare_fn, void * data) {
+  return nb_insert(buffer, insertion_point(buffer, data, compare_fn), data);
 }
 
 void nb_remove_front(struct nb_buffer * buffer) { nb_remove_at(buffer, 0); }
