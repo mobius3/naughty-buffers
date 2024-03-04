@@ -521,7 +521,7 @@ NAUGHTY_BUFFERS_EXPORT void nb_remove_at(struct nb_buffer * buffer, size_t index
  * equal and > 0 if the first element should come after the second
  * @ingroup buffer
  */
-NAUGHTY_BUFFERS_EXPORT void nb_sort(const struct nb_buffer * buffer, nb_compare_fn compare_fn);
+NAUGHTY_BUFFERS_EXPORT void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn);
 
 /**
  * @brief Releases all allocated memory by the buffer and resets all internal metadata effectively making it an

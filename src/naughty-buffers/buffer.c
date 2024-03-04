@@ -150,7 +150,7 @@ void nb_remove_at(struct nb_buffer * buffer, const size_t index) {
   buffer->block_count--;
 }
 
-void nb_sort(struct nb_buffer * buffer, const nb_compare_fn compare_fn) {
+void nb_sort(struct nb_buffer * buffer, nb_compare_fn compare_fn) {
   qsort(buffer->data, buffer->block_count, buffer->block_size, compare_fn);
 }
 
