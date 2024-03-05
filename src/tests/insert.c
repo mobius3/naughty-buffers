@@ -177,6 +177,30 @@ void insert_sorted_random_values_works() {
   nb_release(&buffer);
 }
 
+
+void insert_sorted_sorted_values_works() {
+  struct nb_buffer buffer;
+
+  nb_init(&buffer, sizeof(uint32_t));
+  uint32_t values[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+  for (int i = 0; i < 10; i++) {
+    nb_insert_sorted(&buffer, uint32_compare, &values[i]);
+  }
+
+  assert(nb_block_count(&buffer) == 10);
+
+  for (size_t i = 1; i < 10; i++) {
+    const enum NB_COMPARE_RESULT comparison = uint32_compare(
+      nb_at(&buffer, i -1),
+      nb_at(&buffer, i)
+    );
+    assert(comparison != NB_COMPARE_HIGHER);
+  }
+
+  nb_release(&buffer);
+}
+
 int main(void) {
   srand(time(0));
   insert_increases_count_correctly();
@@ -186,6 +210,7 @@ int main(void) {
   insert_properly_keeps_other_values();
   insert_sorted_reversed_values_works();
   insert_sorted_random_values_works();
+  insert_sorted_sorted_values_works();
 
   return 0;
 }
