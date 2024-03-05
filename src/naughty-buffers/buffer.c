@@ -34,14 +34,15 @@ struct search_result {
 };
 
 static struct search_result internal_search(const struct nb_buffer * buffer, const void * ptr, const nb_compare_fn compare_fn) {
-  size_t high = buffer->block_count -1;
-  size_t low = 0;
+  if (buffer->block_count == 0) return (struct search_result) { .type = INSERT_AT, .index = 0 };
+  int64_t low = 0;
+  int64_t high = buffer->block_count -1;
   while (low <= high) {
-    const size_t mid = (high + low) / 2;
+    const int64_t mid = (high + low) / 2;
     switch (compare_fn(ptr, nb_at(buffer, mid))) {
       case NB_COMPARE_EQUAL: return (struct search_result) { .type = FOUND_AT, .index = mid };
-      case NB_COMPARE_HIGHER: high = mid - 1; break;
-      case NB_COMPARE_LOWER: low = mid + 1; break;
+      case NB_COMPARE_LOWER: high = mid - 1; break;
+      case NB_COMPARE_HIGHER: low = mid + 1; break;
     }
   }
   return (struct search_result) { .type = INSERT_AT, .index = low};
