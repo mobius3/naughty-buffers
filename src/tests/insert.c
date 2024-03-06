@@ -3,6 +3,17 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "complex.h"
+
+static enum NB_COMPARE_RESULT uint32_compare(const void * ptr_a, const void * ptr_b) {
+  const uint32_t * a = ptr_a;
+  const uint32_t * b = ptr_b;
+
+  if (*a > *b) return NB_COMPARE_HIGHER;
+  if (*a < *b) return NB_COMPARE_LOWER;
+  return NB_COMPARE_EQUAL;
+}
+
 void insert_increases_count_correctly() {
   struct nb_buffer buffer;
   uint32_t value = 0;
@@ -121,15 +132,6 @@ void insert_properly_keeps_other_values() {
   nb_release(&buffer);
 }
 
-static enum NB_COMPARE_RESULT uint32_compare(void * ptr_a, void * ptr_b) {
-  const uint32_t * a = ptr_a;
-  const uint32_t * b = ptr_b;
-
-  if (*a > *b) return NB_COMPARE_HIGHER;
-  if (*a < *b) return NB_COMPARE_LOWER;
-  return NB_COMPARE_EQUAL;
-}
-
 void insert_sorted_reversed_values_works() {
   struct nb_buffer buffer;
 
@@ -201,6 +203,45 @@ void insert_sorted_sorted_values_works() {
   nb_release(&buffer);
 }
 
+void insert_sorted_with_complex_data_works() {
+  struct nb_buffer buffer;
+  nb_init(&buffer, sizeof(struct complex_t));
+
+  struct complex_t complex[] = {
+    { .real = 2, .imaginary = -0.002 },
+    { .real = 2.001, .imaginary = -0.2 },
+    { .real = 2.0001, .imaginary = -0.2 },
+    { .real = 0, .imaginary = 0 },
+    { .real = 0, .imaginary = 1 },
+    { .real = 0, .imaginary = -1 },
+    { .real = 1, .imaginary = 0 },
+    { .real = 1, .imaginary = 0.1 },
+    { .real = 1, .imaginary = 0.2 },
+    { .real = 2, .imaginary = -0.2 },
+  };
+
+  struct complex_t expected[] = {
+    { .real = 0.000000, .imaginary = -1.000000 },
+    { .real = 0.000000, .imaginary = 0.000000 },
+    { .real = 0.000000, .imaginary = 1.000000 },
+    { .real = 1.000000, .imaginary = 0.000000 },
+    { .real = 1.000000, .imaginary = 0.100000 },
+    { .real = 1.000000, .imaginary = 0.200000 },
+    { .real = 2.000000, .imaginary = -0.200000 },
+    { .real = 2.000000, .imaginary = -0.002000 },
+    { .real = 2.000100, .imaginary = -0.200000 },
+    { .real = 2.001000, .imaginary = -0.200000 },
+  };
+
+  for (size_t i = 0; i < 10; i++) {
+    nb_insert_sorted(&buffer, complex_compare, &complex[i]);
+  }
+
+  for (size_t i = 0; i < nb_block_count(&buffer); i++) {
+    assert(complex_compare(nb_at(&buffer, i), &expected[i]) == NB_COMPARE_EQUAL);
+  }
+}
+
 int main(void) {
   srand(time(0));
   insert_increases_count_correctly();
@@ -211,6 +252,7 @@ int main(void) {
   insert_sorted_reversed_values_works();
   insert_sorted_random_values_works();
   insert_sorted_sorted_values_works();
+  insert_sorted_with_complex_data_works();
 
   return 0;
 }
